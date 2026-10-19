@@ -210,6 +210,16 @@ const RUGS = {
     smile.castShadow = false;
     for (const side of [-1, 1]) cyl(g, 0.06, 0.06, 0.023, 8, '#ff9fb0', side * 0.27, 0.023, 0.08).castShadow = false; // cheeks
   },
+  scallop(g, a, b) { // the Welcome pack's princess rug (GDD #135): a pink circle with a scalloped edge, a purple band, a pink middle
+    cyl(g, 0.62, 0.62, 0.02, 20, a, 0, 0.02, 0).castShadow = false; // top at 0.03, clear of the floor's top (0.02)
+    for (let i = 0; i < 16; i++) {
+      const t = (i / 16) * Math.PI * 2;
+      cyl(g, 0.11, 0.11, 0.02, 10, a, Math.cos(t) * 0.62, 0.02, Math.sin(t) * 0.62).castShadow = false;
+    }
+    cyl(g, 0.5, 0.5, 0.022, 20, b, 0, 0.022, 0).castShadow = false;
+    cyl(g, 0.34, 0.34, 0.024, 20, a, 0, 0.024, 0).castShadow = false;
+    cyl(g, 0.1, 0.1, 0.026, 10, b, 0, 0.026, 0).castShadow = false;
+  },
   round(g, a, b) {
     const outer = cyl(g, 0.7, 0.7, 0.02, 14, a, 0, 0.02, 0);
     const inner = cyl(g, 0.5, 0.5, 0.022, 14, b, 0, 0.022, 0);

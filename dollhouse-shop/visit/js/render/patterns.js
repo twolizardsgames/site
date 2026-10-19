@@ -366,6 +366,16 @@ const PACK_TILES = {
     gull(g, s * 0.88, s * 0.3, s * 0.07);
     g.fillStyle = '#ffd23f'; circle(g, s * 0.1, s * 0.12, s * 0.06);
   },
+  // The Welcome pack (GDD #135, #171): pink hearts and gold stars with little sparkles
+  starhearts(g, s) {
+    g.fillStyle = '#ff7cb0'; heart(g, s * 0.28, s * 0.3, s * 0.17);
+    g.fillStyle = 'rgba(255,255,255,0.7)'; circle(g, s * 0.22, s * 0.24, s * 0.03);
+    g.fillStyle = '#ffcf4a'; star(g, s * 0.75, s * 0.74, s * 0.15);
+    g.fillStyle = '#b48cff'; heart(g, s * 0.78, s * 0.22, s * 0.08);
+    g.fillStyle = '#ffcf4a'; star(g, s * 0.22, s * 0.8, s * 0.07);
+    g.fillStyle = 'rgba(255,255,255,0.85)';
+    for (const [x, y, r] of [[0.5, 0.5, 0.018], [0.55, 0.1, 0.014], [0.08, 0.55, 0.014], [0.95, 0.5, 0.012]]) circle(g, x * s, y * s, r * s);
+  },
   // Not a pack's: the story's last gift (GDD #148), blue-ribbon rosettes and little gold stars.
   blueribbon(g, s) {
     rosette(g, s * 0.28, s * 0.3, s * 0.13);
@@ -792,6 +802,11 @@ export function swatchURL(kind, opt, paper) {
     if (opt.shape === 'none') {
       g.strokeStyle = 'rgba(90,58,85,0.35)'; g.lineWidth = 6; g.beginPath(); g.arc(0, 0, r * 0.7, 0, Math.PI * 2); g.moveTo(-r * 0.5, r * 0.5); g.lineTo(r * 0.5, -r * 0.5); g.stroke();
     } else if (opt.shape === 'round') { ring(opt.color, 1); ring(opt.color2, 0.7); }
+    else if (opt.shape === 'scallop') {
+      g.fillStyle = opt.color;
+      for (let i = 0; i < 12; i++) { const t = (i / 12) * Math.PI * 2; g.beginPath(); g.arc(Math.cos(t) * r * 0.82, Math.sin(t) * r * 0.82, r * 0.2, 0, Math.PI * 2); g.fill(); }
+      ring(opt.color, 0.84); ring(opt.color2, 0.68); ring(opt.color, 0.46); ring(opt.color2, 0.14);
+    }
     else if (opt.shape === 'rect') { g.fillStyle = opt.color2; g.fillRect(-r, -r * 0.66, 2 * r, 1.33 * r); g.fillStyle = opt.color; for (let i = 0; i < 4; i++) g.fillRect(-r + r * 0.12 + i * r * 0.5, -r * 0.66, r * 0.26, 1.33 * r); }
     else if (opt.shape === 'hearth') { g.fillStyle = opt.color; g.beginPath(); g.arc(0, r * 0.4, r, Math.PI, 0); g.fill(); g.fillStyle = opt.color2; g.beginPath(); g.arc(0, r * 0.4, r * 0.62, Math.PI, 0); g.fill(); }
     else if (opt.shape === 'petals') {

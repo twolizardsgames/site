@@ -10,6 +10,20 @@
 // past the first shelf room, the Bright and Dazzle colors and the later helpers and upgrades (sim/fullshop.js). It never shows in the 🎁 Packs tab.
 
 export const PACKS = {
+  welcome: { // GDD #134, #135, #171: the small first pack, offered once on a card the morning after decorating opens
+    id: 'welcome',
+    name: 'Welcome pack',
+    icon: '👑',
+    product: 'pack.welcome',
+    price: '$0.99',
+    look: { pattern: 'starhearts', rug: 'princess' }, // the pack card's picture wears these (main.js packPicture)
+    blurb: 'A princess dress, a prince outfit, a stars-and-hearts wallpaper and a pretty round rug, to make your shop your own!',
+    contents: [
+      ['👑', 'A princess dress and a prince outfit for your shopkeeper'],
+      ['💖', 'A stars-and-hearts wallpaper'],
+      ['🟣', 'A round pink-and-purple rug'],
+    ],
+  },
   christmas: {
     id: 'christmas',
     name: 'Christmas pack',
@@ -107,8 +121,30 @@ export const PACKS = {
       ['🧰', 'More helpers and upgrades: Ollie, Rosa, Penny, the Big Cart, Roller Skates, Tall Shelves and the Bigger Dream Dollhouse'],
     ],
   },
+  // The everything bundle (GDD #134, #161, #171): buying it sets `allPacks` (sim/packs.js), so it owns every pack and the
+  // Full shop, and any pack added in a later update too. Not a decoration pack itself: it shows at the top of 🎁 Packs.
+  bundle: {
+    id: 'bundle',
+    name: 'Everything bundle',
+    icon: '🎁',
+    product: 'pack.bundle',
+    price: '$9.99',
+    bundle: true,
+    blurb: 'Every pack in the game and the Full shop, all in one!',
+    note: 'Buy it once and it\'s yours for good. Packs added to the game later are yours too, at no extra cost.',
+    contents: [
+      ['🏬', 'The Full shop: more rooms, floors, register rooms, two more colors of every item, and every helper and upgrade'],
+      ['👑', 'The Welcome pack'],
+      ['🎄', 'The Christmas pack'],
+      ['🏖️', 'The Beach pack'],
+      ['🧚', 'The Fairy pack'],
+      ['🌴', 'The Jungle pack'],
+      ['🚀', 'The Space pack'],
+    ],
+  },
 };
 
 export const PACK_IDS = Object.keys(PACKS);
-/** The decoration packs (just for looks): everything but the Full shop. */
-export const LOOK_PACK_IDS = PACK_IDS.filter((id) => !PACKS[id].unlock);
+export const BUNDLE = 'bundle';
+/** The decoration packs (just for looks): everything but the Full shop and the bundle. */
+export const LOOK_PACK_IDS = PACK_IDS.filter((id) => !PACKS[id].unlock && !PACKS[id].bundle);

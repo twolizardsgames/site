@@ -6,7 +6,7 @@ import { createKeeper } from './keeper.js';
 import { dropBox } from './stock.js';
 import { emptyStats } from './day.js';
 
-export const STATE_VERSION = 38;
+export const STATE_VERSION = 39;
 
 /** The Settings menu's choices (GDD #94): sound effects and music, each on/off with a volume (0-1), vibration, and the
  * store apps' "earnings are ready" notification (GDD #128). */
@@ -65,7 +65,8 @@ export function createState(now = Date.now()) {
     wishes: [],
     decor: { owned: {}, seen: null }, // room styles bought with Ribbons ('kind:id' -> true; sim/decor.js); each room wears room.decor; seen: what the Decorate panel last showed (newDecor, GDD #122), null until first counted
     packs: {},     // decoration packs owned (pack id -> true; sim/packs.js, data/packs.js, GDD #106)
-    allPacks: false, // every pack, now and future ones, and the Full shop (a gift link, GDD #168)
+    allPacks: false, // every pack, now and future ones, and the Full shop (a gift link or the everything bundle, GDD #168, #171)
+    welcomeOffered: false, // the Welcome pack's card has shown its one time (sim/packs.js welcomeOfferDue, GDD #171)
     outside: null, // the pack whose outside scene is on (🏡 Outside tab, GDD #109), or null
     // The shopkeeper's look, girl or boy (the creator, ui/creator.js); `created` is false until the player has seen the creator.
     shopkeeper: { body: 'girl', hair: 'bun', hairColor: '#c2563a', skin: '#ffd9c2', outfit: '#9fe0c8', accessory: 'none', created: false },

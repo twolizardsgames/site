@@ -153,6 +153,31 @@ function outfitTrim(inner, style) {
       ball(inner, 0.028, i % 2 ? '#2a55b8' : '#5b8ff0', Math.cos(a) * 0.045, 0.42 + Math.sin(a) * 0.045, 0.2, 0).scale.z = 0.4;
     }
     ball(inner, 0.032, '#ffcf4a', 0, 0.42, 0.215, 0).scale.z = 0.4;
+  } else if (style === 'princess') { // the Welcome pack (GDD #135): a full skirt with a ruffled hem, puffed sleeves, a gold sash and a jewel
+    cyl(inner, 0.205, 0.32, 0.26, 14, '#ff9ec4', 0, 0.15, 0).castShadow = false;
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2;
+      const frill = ball(inner, 0.045, '#e8d8ff', Math.sin(a) * 0.32, 0.035, Math.cos(a) * 0.32, 0);
+      frill.scale.y = 0.6;
+      frill.castShadow = false;
+    }
+    for (const side of [-1, 1]) ball(inner, 0.09, '#e8d8ff', side * 0.21, 0.44, 0, 0).castShadow = false;
+    cyl(inner, 0.207, 0.207, 0.035, 12, '#ffcf4a', 0, 0.3, 0).castShadow = false;
+    const jewel = mesh(inner, new THREE.OctahedronGeometry(0.035), '#a77be0', 0, 0.47, 0.205);
+    jewel.scale.z = 0.5;
+    jewel.castShadow = false;
+  } else if (style === 'prince') { // the Welcome pack (GDD #172): a royal blue jacket, gold shoulders, sash and hem, a short red cape
+    cyl(inner, 0.2, 0.19, 0.04, 12, '#ffcf4a', 0, 0.13, 0).castShadow = false; // a gold hem
+    const sash = box(inner, 0.06, 0.4, 0.02, '#ffcf4a', 0, 0.36, 0.2);
+    sash.rotation.z = 0.75;
+    sash.castShadow = false;
+    for (const side of [-1, 1]) {
+      const pad = ball(inner, 0.06, '#ffcf4a', side * 0.2, 0.47, 0, 0);
+      pad.scale.y = 0.45;
+      pad.castShadow = false;
+    }
+    const cape = mesh(inner, new THREE.CylinderGeometry(0.225, 0.28, 0.42, 12, 1, true, Math.PI * 0.6, Math.PI * 0.8), '#d23345', 0, 0.32, -0.01); // round the back
+    cyl(inner, 0.205, 0.215, 0.05, 12, '#d23345', 0, 0.55, 0).castShadow = false; // the cape's collar
   } else if (style === 'sweater') { // a white snowy band with red and green dots, white cuffs and hem
     cyl(inner, 0.206, 0.206, 0.08, 12, '#ffffff', 0, 0.45, 0).castShadow = false;
     for (let i = 0; i < 6; i++) {

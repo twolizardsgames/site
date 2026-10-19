@@ -1158,6 +1158,7 @@ body.moving #toolbar { display: none; }
 .sty-pack-ico { font-size: 34px; line-height: 40px; }
 .sty-pack b { font-size: 14px; }
 .sty-pack small { font-weight: 800; color: #b8336a; }
+.sty-pack.sty-bundle { background: linear-gradient(160deg, #fff8dc 0%, #ffd98a 100%); }
 .creator-pack { margin-top: 2px; }
 .creator-pack[hidden] { display: none; }
 .creator-opts button.pack { background: #fff4f8; }

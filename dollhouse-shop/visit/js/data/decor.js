@@ -67,6 +67,8 @@ export const DECOR = {
     { id: 'hearts', name: 'Hearts', price: 25 },
     { id: 'candy', name: 'Candy', price: 25 },
     { id: 'paws', name: 'Paw prints', price: 25 },
+    // The Welcome pack (GDD #135, #171)
+    { id: 'starhearts', name: 'Stars and hearts', pack: 'welcome' },
     // The Christmas pack (GDD #116): pictures in their own colours on any wallpaper colour
     { id: 'candycane', name: 'Candy canes', pack: 'christmas' },
     { id: 'snowflakes', name: 'Snowflakes', pack: 'christmas' },
@@ -122,6 +124,7 @@ export const DECOR = {
     { id: 'lime', name: 'Lime flower', shape: 'flower', color: '#a6e22e', color2: '#ffe066', price: 40 },
     { id: 'galaxy', name: 'Galaxy star', shape: 'star', color: '#3a2f8f', color2: '#ffd166', price: 50 },
     { id: 'sunny', name: 'Sunny star', shape: 'star', color: '#ff9a3c', color2: '#ffe066', price: 40 },
+    { id: 'princess', name: 'Princess', shape: 'scallop', color: '#ff9ec4', color2: '#a77be0', pack: 'welcome' },
     { id: 'fireplace', name: 'Fireplace', shape: 'hearth', color: '#c8283a', color2: '#2f7a4a', pack: 'christmas' },
     { id: 'petals', name: 'Flower petals', shape: 'petals', color: '#ffa8d2', color2: '#d9c4ff', pack: 'fairy' },
     { id: 'tiger', name: 'Tiger stripes', shape: 'tiger', color: '#ff9a3c', color2: '#3a2a2a', pack: 'jungle' },

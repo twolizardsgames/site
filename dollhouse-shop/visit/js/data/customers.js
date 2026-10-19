@@ -74,6 +74,8 @@ const REWARD_ACCESSORIES = [
  * [creator row, value, name, pack]. Locked until you own the pack (sim/rewards.js ownsLook).
  */
 export const PACK_LOOKS = [
+  ['outfit', 'princess', 'Princess dress', 'welcome'],
+  ['outfit', 'prince', 'Prince outfit', 'welcome'],
   ['outfit', 'sweater', 'Christmas sweater', 'christmas'],
   ['outfit', 'elf', 'Elf outfit', 'christmas'],
   ['accessory', 'santa', 'Santa hat', 'christmas'],
@@ -103,6 +105,8 @@ const PACK_ACCESSORIES = [['santa', 'Santa hat 🎅'], ['elfears', 'Elf ears �
  * for the creator's swatch and anywhere else an outfit is shown as a colour.
  */
 export const OUTFIT_STYLES = {
+  princess: { color: '#ff9ec4', icon: '👑' }, // the Welcome pack (GDD #135): a full skirt, puffed sleeves and a gold sash
+  prince: { color: '#3a5fcf', icon: '🤴' }, // the Welcome pack (GDD #172): gold shoulders, sash and hem, a red cape
   sweater: { color: '#d23345', icon: '❄️' },
   elf: { color: '#2f9a55', icon: '🧝' },
   fairy: { color: '#cdb4ff', icon: '🧚' }, // the Fairy pack (GDD #161): a petal skirt and wings
