@@ -11,7 +11,7 @@ export const CAST = {
   maple: { name: 'Mrs. Maple', look: { hair: 'bun', hairColor: '#dcd6e0', skin: '#f5c4a0', outfit: '#b98ac9', accessory: 'glasses' } },
   june: { name: 'Grandma June', look: { hair: 'bob', hairColor: '#f1ede6', skin: '#e0a37c', outfit: '#8fc8e8', accessory: 'hat' } },
   lily: { name: 'Lily', look: { hair: 'pigtails', hairColor: '#7a4a2e', skin: '#ffd9c2', outfit: '#ffd166', accessory: 'bow', scale: KID_SCALE } },
-  pip: { name: 'Pip', look: { hair: 'short', hairColor: '#f7f1ea', skin: '#f7f1ea', outfit: '#7fb0e8', accessory: 'bunny', scale: KID_SCALE } },
+  pip: { name: 'Pip', look: { hair: 'short', hairColor: '#4a2e1f', skin: '#c98a62', outfit: '#7fb0e8', accessory: 'cap' } },
 };
 
 /**

@@ -136,7 +136,13 @@ export async function decodeShop(text) {
   return unpackShop(await unpackJson(m[1], MAX_LINK_BYTES));
 }
 
-/** The visit page's address for this build (the public game or the test build), with the shop after the #. */
-export function visitUrl(pageUrl, text) {
-  return `${new URL('visit.html', pageUrl).href}#${text}`;
+/** The visit page on the studio site (GDD #169), a copy made with every release (scripts/visit-export.js). */
+export const SHARE_PAGE = 'https://twolizardsgames.com/dollhouse-shop/visit/';
+
+/**
+ * A share link: the studio site's visit page with the shop after the #, or, given `ownPage` (the test build's or a
+ * local game's address), the visit.html next to it, so unreleased looks can be tried.
+ */
+export function visitUrl(text, ownPage = null) {
+  return `${ownPage ? new URL('visit.html', ownPage).href : SHARE_PAGE}#${text}`;
 }
