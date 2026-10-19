@@ -90,6 +90,8 @@ li { margin-bottom: 6px; }
 .hero { display: grid; gap: 24px; align-items: center; }
 .hero-text img.app-icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: var(--shadow); margin-bottom: 12px; }
 .shot { width: 100%; max-width: 320px; justify-self: center; border-radius: 18px; box-shadow: var(--shadow); display: block; }
+.shot-link { justify-self: center; width: 100%; max-width: 320px; text-align: center; text-decoration: none; font-weight: 600; }
+.shot-link span { display: block; margin-top: 10px; }
 @media (min-width: 680px) {
   .hero { grid-template-columns: 1fr 280px; }
 }
