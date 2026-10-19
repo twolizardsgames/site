@@ -5,6 +5,9 @@ The Two Lizards Games studio site: plain HTML and CSS, no build step, meant for 
 
 - `index.html`: home page
 - `dollhouse-shop/`: My Dream Dollhouse Shop (store badges go here once the apps are live)
+- `dollhouse-shop/visit/`: the game's share-link visit page (`https://twolizardsgames.com/dollhouse-shop/visit/#v1.…`).
+  **Generated, don't edit by hand:** the game repo's `npm run release` copies it from each release
+  (`scripts/visit-export.js` in esalavat/shop-game) and commits and pushes it here
 - `privacy/`: privacy policy (the stores link to `https://twolizardsgames.com/privacy/`)
 - `support/`: support email and FAQs (the stores link to `https://twolizardsgames.com/support/`)
 - `img/logo.svg`: the logo (the user's picture of two chameleons, cropped round), in the header and as the browser-tab icon
