@@ -1,0 +1,1285 @@
+:root {
+  --ink: #5a3a55;
+  --cream: #fff6ee;
+  --pink: #f27aa8;
+  --pink-dark: #c45583;
+  --shadow: #e4c9d6;
+  --frame: #2b2233;
+  --butter: #ffd98a;
+  --lilac: #c8b6ff;
+  --font: ui-rounded, "SF Pro Rounded", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--frame);
+  overflow: hidden;
+  overscroll-behavior: none;
+  font-family: var(--font);
+  color: var(--ink);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Portrait frame: fills a phone; shows a phone-shaped viewport on desktop. */
+#app {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(100vw, calc(100dvh * 0.5));
+  height: 100dvh;
+  overflow: hidden;
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+button {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: scale 0.18s cubic-bezier(0.3, 1.8, 0.5, 1);
+}
+
+/* Bouncy UI (GDD #49): every button squishes while pressed and springs back. `scale` stacks
+   with the translate some buttons already use on :active. */
+button:active:not(:disabled) { scale: 0.92; transition-duration: 0.05s; }
+
+/* ---------- HUD ---------- */
+#hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: calc(env(safe-area-inset-top) + 10px) 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.hud-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 246, 238, 0.94);
+  box-shadow: 0 3px 0 rgba(90, 58, 85, 0.18);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.pill[hidden] { display: none; }
+.pill .ico { font-size: 16px; }
+.hud-row .pill { gap: 4px; }
+.pill b { font-variant-numeric: tabular-nums; }
+.pill.pop { animation: pop 0.35s ease-out; }
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.hud-row2 { position: relative; display: flex; justify-content: center; width: 100%; }
+
+#btn-settings, #btn-share, #btn-help {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 246, 238, 0.94);
+  box-shadow: 0 3px 0 rgba(90, 58, 85, 0.18);
+  font-size: 16px;
+  pointer-events: auto;
+}
+
+/* Share (GDD #91) sits left of the Settings button. */
+#btn-share { right: 42px; }
+/* The Help book's ❓ (GDD #124) sits on the left, clear of the day chip; a dot when there are new pages. */
+#btn-help { right: auto; left: 0; }
+#btn-help.new::after {
+  content: ''; position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%;
+  background: #ff6f91; box-shadow: 0 0 0 2px #fff;
+}
+/* The counters open their Help book page (GDD #123). */
+.pill { pointer-events: auto; cursor: pointer; }
+.pill:active { transform: scale(0.95); }
+
+.day-chip {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(90, 58, 85, 0.55);
+  color: var(--cream);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* ---------- Rotate prompt ---------- */
+#rotate {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: var(--frame);
+  align-items: center;
+  justify-content: center;
+}
+
+.rotate-card {
+  padding: 20px 24px;
+  border-radius: 20px;
+  background: var(--cream);
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+#boot-error, #update-needed, #visit-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--frame);
+}
+
+#boot-error[hidden], #update-needed[hidden], #visit-error[hidden] { display: none; }
+#boot-error .rotate-card, #update-needed .rotate-card, #visit-error .rotate-card { margin: 0 16px; }
+
+#boot-error button, #update-needed button {
+  margin-top: 12px;
+  padding: 10px 24px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #rotate { display: flex; }
+}
+
+/* ---------- Test build badge (/dev/) ---------- */
+#dev-badge {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 92px);
+  left: 10px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: rgba(90, 58, 85, 0.75);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+/* ---------- Debug (?debug) ---------- */
+#debug {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 92px);
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.debug-toggle {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 246, 238, 0.9);
+  font-size: 18px;
+}
+
+.debug-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 246, 238, 0.95);
+  box-shadow: 0 3px 0 rgba(90, 58, 85, 0.18);
+}
+
+.debug-panel[hidden] { display: none; }
+
+.debug-panel button {
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--shadow);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.debug-panel button.danger { background: var(--pink); color: #fff; }
+.debug-stats { font-variant-numeric: tabular-nums; opacity: 0.8; }
+
+/* ---------- Toasts ---------- */
+#toasts {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 84px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 5; /* above the sheets' dark backdrop (the Share sheet's "Picture saved!") */
+}
+
+.toast {
+  max-width: 80%;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: rgba(255, 246, 238, 0.96);
+  box-shadow: 0 3px 0 rgba(90, 58, 85, 0.18);
+  font-weight: 800;
+  font-size: 14px;
+  text-align: center;
+  animation: toast-in 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.toast.out { animation: toast-out 0.3s ease-in forwards; }
+
+@keyframes toast-in { from { opacity: 0; transform: translateY(-8px) scale(0.8); } 60% { opacity: 1; transform: scale(1.06); } }
+@keyframes toast-out { to { opacity: 0; transform: translateY(-8px); } }
+
+/* ---------- Toolbar ---------- */
+#toolbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 12px calc(env(safe-area-inset-bottom) + 12px);
+  pointer-events: none;
+}
+
+#toolbar[hidden] { display: none; }
+
+#toolbar button {
+  pointer-events: auto;
+  flex: 0 1 96px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px 10px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--cream);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: 0 4px 0 var(--shadow);
+}
+
+#toolbar button:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--shadow); }
+.tb-ico { font-size: 24px; line-height: 1; }
+
+/* ---------- Bottom sheets ---------- */
+.sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(43, 34, 51, 0.35);
+  animation: fade-in 0.2s ease-out;
+}
+
+.sheet[hidden] { display: none; }
+
+.sheet-body {
+  width: 100%;
+  max-height: 72%;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 14px calc(env(safe-area-inset-bottom) + 14px);
+  border-radius: 24px 24px 0 0;
+  background: var(--cream);
+  box-sizing: border-box;
+  box-shadow: 0 40px 0 var(--cream);
+  animation: spring-up 0.4s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+
+.sheet-head { display: flex; align-items: center; justify-content: space-between; }
+.sheet-head h2 { margin: 0; font-size: 20px; }
+
+.sheet .close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--shadow);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.pending { margin: 6px 0 10px; font-size: 13px; font-weight: 700; opacity: 0.75; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  padding-bottom: 4px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 8px 10px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 3px 0 var(--shadow);
+}
+
+.card img { width: 84px; height: 84px; }
+.card-name { font-weight: 800; font-size: 14px; text-align: center; }
+/* Order book cards line up like a grid: names get two lines' room, and the buy button sits at the bottom. */
+.cards .card-name { min-height: 2.5em; display: flex; align-items: center; justify-content: center; line-height: 1.2; }
+.card-sub { font-size: 12px; opacity: 0.7; text-align: center; }
+.card-have { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin: -2px 0 6px; font-size: 12px; font-weight: 800; color: #6a5a8a; }
+.card-have span { padding: 0 6px; border-radius: 999px; background: #f1ebfa; }
+.card-have.none { padding: 1px 8px; border-radius: 999px; background: #ffe0ec; color: #b8336a; }
+.card-have.none span { background: none; padding: 0; }
+.card-have.unfound { padding: 1px 8px; border-radius: 999px; background: #f4eff6; color: #9a8aa8; }
+.card-have[hidden] { display: none; }
+.stock-legend { margin: 0 2px 6px; font-size: 11px; font-weight: 700; opacity: 0.65; }
+.card-profit { margin: 4px 0 6px; padding: 1px 8px; border-radius: 999px; background: #d4f3e6; font-size: 12px; font-weight: 800; }
+
+.card .buy {
+  width: 100%;
+  margin-top: auto;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 12px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 3px 0 var(--pink-dark);
+}
+
+.card .buy:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--pink-dark); }
+.card .buy:disabled { background: var(--shadow); color: rgba(90, 58, 85, 0.5); box-shadow: none; }
+
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes slide-up { from { transform: translateY(40%); } }
+@keyframes spring-up { from { transform: translateY(100%); } }
+@keyframes spring-down { from { transform: translateY(-100%); } }
+
+/* ---------- World-pinned bubbles & pop-ups ---------- */
+#overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bubble,
+.floater {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  font-weight: 800;
+  will-change: transform;
+}
+
+.bubble {
+  padding: 4px 8px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 0 rgba(90, 58, 85, 0.18);
+  font-size: 14px;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  margin-left: -6px;
+  border: 6px solid transparent;
+  border-bottom: 0;
+  border-top-color: #fff;
+}
+
+.bubble.wish img { display: block; width: 40px; height: 40px; }
+.bubble.wish { padding: 2px 4px; border-radius: 50%; }
+.bubble.waiting { font-size: 18px; animation: wiggle 1s ease-in-out infinite; }
+.bubble.prompt { background: var(--pink); color: #fff; }
+.bubble.prompt::after { border-top-color: var(--pink); }
+/* Bonus-spot markers (views/spots.js): a little bobbing icon just above a glowing ring on the ground. */
+.bubble.spot { padding: 2px 5px; border: 2px solid var(--pink); border-radius: 50%; background: rgba(255, 255, 255, 0.85); font-size: 15px; animation: bob 1.4s ease-in-out infinite; }
+.bubble.spot::after { display: none; }
+.bubble.spot-showoff { border-color: #e8b64a; }
+@keyframes bob { 50% { margin-top: -5px; } }
+/* + spots for a new room (GDD #58, main.js placement mode): tappable, unlike other bubbles. */
+.bubble.place { padding: 0; background: none; box-shadow: none; pointer-events: auto; transform-origin: center; }
+.bubble.place::after { display: none; }
+.bubble.place button {
+  width: 64px; height: 64px; margin-bottom: -32px; border: 3px dashed #fff; border-radius: 50%;
+  background: rgba(224, 103, 154, 0.85); color: #fff; font-size: 30px; font-weight: 800; line-height: 1;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.35); animation: bob 1.1s ease-in-out infinite;
+}
+#place-banner, #move-banner {
+  position: absolute; top: calc(env(safe-area-inset-top) + 92px); left: 16px; right: 16px;
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px;
+  background: var(--cream); box-shadow: 0 3px 0 var(--shadow); font-weight: 800; font-size: 15px;
+}
+#place-banner[hidden], #move-banner[hidden] { display: none; }
+/* While the banner shows, toasts drop below it instead of covering it. */
+#place-banner:not([hidden]) ~ #toasts, #move-banner:not([hidden]) ~ #toasts { top: calc(env(safe-area-inset-top) + 160px); }
+#place-banner span, #move-banner span { flex: 1; }
+/* Moving rooms (GDD #157): Done is the way out, so the toolbar steps aside. */
+#move-banner button { border: 0; border-radius: 12px; padding: 8px 16px; background: var(--pink); color: #fff; font-weight: 800; box-shadow: 0 3px 0 var(--pink-dark); }
+body.moving #toolbar { display: none; }
+#place-banner button { border: 0; border-radius: 12px; padding: 8px 12px; background: var(--shadow); color: var(--ink); font-weight: 800; }
+/* A story visit (ui/story.js, GDD #147): the chapter's name, Skip, and the friend's speech bubble. Taps anywhere go on. */
+#story { position: absolute; inset: 0; z-index: 5; }
+#story[hidden] { display: none; }
+.story-title {
+  position: absolute; bottom: calc(env(safe-area-inset-bottom) + 18px); left: 16px; max-width: calc(100% - 150px);
+  overflow: hidden; text-overflow: ellipsis;
+  padding: 6px 14px; border-radius: 16px; background: var(--cream); box-shadow: 0 3px 0 var(--shadow);
+  font-weight: 800; font-size: 15px; white-space: nowrap; animation: story-fade 0.35s ease-out;
+}
+.story-skip {
+  position: absolute; bottom: calc(env(safe-area-inset-bottom) + 18px); right: 16px; border: 0; border-radius: 14px;
+  padding: 10px 16px; background: rgba(255, 246, 238, 0.92); box-shadow: 0 3px 0 var(--shadow); color: var(--ink);
+  font: 800 15px var(--font);
+}
+.bubble.story-say {
+  box-sizing: border-box; width: max-content; max-width: min(340px, calc(100vw - 24px)); white-space: normal; padding: 10px 16px 8px; border-radius: 22px;
+  font-size: 21px; font-weight: 700; line-height: 1.3; margin-top: -10px; animation: story-fade 0.3s ease-out;
+}
+.bubble.story-say::after { margin-left: calc(-9px + var(--tail, 0px)); bottom: -9px; border-width: 9px 9px 0; }
+.bubble.story-say b { display: block; color: var(--pink-dark); font-size: 16px; }
+.bubble.story-say p { margin: 3px 0 6px; }
+.bubble.story-say small { display: block; text-align: right; font-size: 13px; opacity: 0.6; }
+@keyframes story-fade { from { opacity: 0; } }
+
+/* First-day guide (ui/guide.js): a bouncing pink label with a big arrow underneath. */
+.bubble.guide { background: var(--pink); color: #fff; font-size: 15px; animation: bob 0.9s ease-in-out infinite; }
+.bubble.guide::after { bottom: -14px; margin-left: -12px; border-width: 14px 12px 0; border-top-color: var(--pink); }
+.guide-btn { position: absolute; transform: translate(-50%, -100%); pointer-events: none; animation: bob 0.9s ease-in-out infinite; }
+.guide-btn[hidden] { display: none; }
+.guide-btn span { position: relative; display: block; padding: 4px 8px; border-radius: 14px; background: var(--pink); color: #fff; font-weight: 800; font-size: 15px; white-space: nowrap; margin-bottom: 14px; }
+.guide-btn span::after { content: ''; position: absolute; left: 50%; bottom: -14px; margin-left: -12px; border: solid transparent; border-width: 14px 12px 0; border-top-color: var(--pink); }
+
+@keyframes wiggle {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -10deg; }
+  75% { rotate: 10deg; }
+}
+
+.floater { font-size: 18px; text-shadow: 0 2px 0 #fff, 0 0 6px #fff; }
+.floater > span { display: inline-block; animation: floater-in 0.3s cubic-bezier(0.3, 1.8, 0.5, 1) both; }
+.floater.heart-rise { font-size: 18px; }
+.floater.sad { font-size: 34px; } /* a shopper giving up on the line (GDD #139): big enough to notice */
+@keyframes floater-in { from { transform: scale(0.2); } }
+.floater.coins { font-size: 22px; color: #c98a1c; }
+.floater.tip { font-size: 15px; color: var(--pink-dark); }
+.floater.heart { font-size: 15px; color: #e0507a; }
+.floater.beep { font-size: 14px; color: var(--ink); }
+
+/* ---------- Day clock & summary ---------- */
+.day-chip { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.day-bar { position: relative; width: 100%; min-width: 90px; height: 4px; border-radius: 2px; background: rgba(255, 246, 238, 0.3); }
+/* Midday mark for Lunchtime Delivery (GDD #52): butter yellow and pulsing while a lunch order is on its way. */
+#hud-lunch { position: absolute; left: 50%; top: -3px; width: 3px; height: 10px; margin-left: -1.5px; border-radius: 2px; background: rgba(255, 246, 238, 0.7); }
+#hud-lunch[hidden] { display: none; }
+#hud-lunch.coming { background: var(--butter); box-shadow: 0 0 6px var(--butter); animation: lunch-pulse 1.2s ease-in-out infinite; }
+#hud-lunch.past { opacity: 0.35; }
+@keyframes lunch-pulse { 50% { transform: scaleY(1.4); } }
+.day-bar[hidden] { display: none; }
+#hud-day-fill { height: 100%; width: 0; background: var(--cream); border-radius: 2px; transition: width 0.3s linear; }
+
+#toolbar button.primary { background: var(--pink); color: #fff; box-shadow: 0 4px 0 var(--pink-dark); }
+#toolbar button.primary:active { box-shadow: 0 2px 0 var(--pink-dark); }
+#toolbar button.passive { opacity: 0.85; }
+.tb-label { font-variant-numeric: tabular-nums; }
+#toolbar #btn-day { flex: 1 1 120px; }
+#toolbar.five { gap: 6px; padding-left: 8px; padding-right: 8px; }
+#toolbar.five button { font-size: 12px; padding-left: 2px; padding-right: 2px; }
+#toolbar button[hidden] { display: none; }
+#toolbar button.ready { background: var(--butter); box-shadow: 0 4px 0 #e0b452; animation: nudge 1.6s ease-in-out infinite; }
+
+@keyframes nudge {
+  0%, 70%, 100% { transform: none; }
+  80% { transform: translateY(-4px) rotate(-3deg); }
+  90% { transform: translateY(-2px) rotate(3deg); }
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.stat {
+  padding: 10px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 3px 0 var(--shadow);
+  text-align: center;
+}
+
+.stat b { display: block; font-size: 22px; }
+.stat b i { font-style: normal; font-variant-numeric: tabular-nums; }
+.stat.done b { animation: pop 0.3s ease-out; }
+
+.summary-record {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: var(--butter);
+  box-shadow: 0 3px 0 #e0b452;
+  font-weight: 800;
+  text-align: center;
+  animation: toast-in 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.summary-record[hidden] { display: none; }
+.stat span { font-size: 12px; font-weight: 700; opacity: 0.7; }
+
+/* The middle scrolls on a big day, so the title and the Start Day button always show. */
+.summary-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0 -4px; padding: 0 4px 4px; }
+.summary-actions { flex: none; }
+
+.summary-section { margin: 6px 0; font-size: 13px; font-weight: 700; }
+.summary-section:empty { display: none; }
+.thumb-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.thumb { position: relative; width: 48px; height: 48px; border-radius: 12px; background: #fff; box-shadow: 0 2px 0 var(--shadow); }
+.thumb img { width: 100%; height: 100%; }
+.thumb i { position: absolute; right: -4px; bottom: -4px; padding: 0 5px; border-radius: 8px; background: var(--pink); color: #fff; font-style: normal; font-size: 11px; }
+
+.summary-actions { display: flex; gap: 10px; margin-top: 12px; }
+.summary-actions button {
+  flex: 1;
+  padding: 12px 6px;
+  border: 0;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 15px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 3px 0 var(--shadow);
+}
+.summary-actions .summary-next { background: var(--pink); color: #fff; box-shadow: 0 3px 0 var(--pink-dark); }
+
+/* ---------- Collection album ---------- */
+.stickers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  padding-bottom: 4px;
+}
+
+.sticker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 4px 8px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 3px 0 var(--shadow);
+}
+
+.sticker img { width: 60px; height: 60px; }
+.sticker .card-name { font-size: 12px; line-height: 1.2; }
+.sticker .card-sub { font-size: 11px; margin: 2px 0 0; text-align: center; }
+.sticker.locked { background: #f7eef2; box-shadow: none; }
+.sticker.locked img { filter: brightness(0); opacity: 0.18; }
+.sticker.locked .card-name { opacity: 0.55; }
+.sticker .badge { position: absolute; top: 4px; right: 6px; font-style: normal; font-size: 16px; }
+
+/* ---------- Grow sheet: rooms, helpers, upgrades ---------- */
+.grow-list { overflow-y: auto; margin: 0 -4px; padding: 0 4px 4px; }
+.grow-back { align-self: flex-start; margin: 4px 0 0; padding: 6px 12px; border: 0; border-radius: 12px; background: #fff; font: inherit; font-weight: 800; font-size: 14px; color: var(--ink); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08); }
+.grow-section { margin: 12px 0 2px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.6; }
+
+.grow-card {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 3px 0 var(--shadow);
+  text-align: center;
+}
+
+.grow-art { font-size: 44px; }
+.grow-card h3 { margin: 4px 0; font-size: 18px; }
+.grow-card p { margin: 0 0 12px; font-size: 14px; line-height: 1.4; }
+.grow-card.small { display: grid; grid-template-columns: 44px 1fr; gap: 4px 10px; padding: 12px; text-align: left; }
+.grow-card.small .grow-art { font-size: 32px; line-height: 44px; text-align: center; grid-row: span 2; }
+.grow-card.small h3 { margin: 0; font-size: 16px; }
+.grow-card.small p { margin: 0 0 8px; font-size: 13px; }
+.grow-card.small .grow-build { grid-column: 2; padding: 9px 0; font-size: 15px; }
+.grow-card.owned { opacity: 0.75; }
+/* The next helper or upgrade on the ladder, still locked (GDD #83). */
+.grow-card.next { background: #f7eef2; box-shadow: none; }
+.grow-card.next .grow-art { filter: grayscale(1); opacity: 0.5; }
+.grow-card.next .grow-build:disabled { background: #fff4dc; color: var(--ink); }
+/* What you already have, as a row of icons. */
+.grow-owned { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 12px 0 4px; padding: 8px 12px; border-radius: 14px; background: #d4f3e6; font-size: 22px; }
+.grow-owned span { margin-right: 4px; font-size: 13px; font-weight: 800; }
+.grow-owned i { font-style: normal; }
+.grow-cost { margin: -4px 0 10px; font-size: 14px; font-weight: 800; }
+.grow-themes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grow-theme {
+  display: flex; align-items: center; gap: 6px; padding: 10px 8px;
+  border: 2px solid var(--edge); border-radius: 14px; background: var(--tint);
+  color: var(--ink); font-weight: 800; font-size: 14px; text-align: left;
+}
+.grow-theme span { font-size: 20px; }
+.grow-theme:disabled { opacity: 0.5; }
+.grow-done { padding: 10px; font-size: 14px; font-weight: 700; opacity: 0.7; text-align: center; }
+
+/* Share your shop (GDD #91): the framed picture, then the buttons. */
+#share .sheet-body { max-height: 92%; }
+.share-frame { display: flex; align-items: center; justify-content: center; margin-top: 10px; min-height: 120px; }
+.share-pic { display: block; max-width: 100%; max-height: 46dvh; border-radius: 12px; box-shadow: 0 4px 0 var(--shadow); }
+.share-pic[hidden], .share-wait[hidden] { display: none; }
+.share-wait { font-size: 15px; font-weight: 800; opacity: 0.7; }
+.share-note { margin: 10px 0; font-size: 13px; font-weight: 700; text-align: center; opacity: 0.75; }
+.share-more { display: flex; gap: 8px; margin-top: 8px; }
+.share-more button {
+  flex: 1; padding: 10px 0; border: 0; border-radius: 14px; background: #fff; color: var(--ink);
+  font: 800 14px var(--font); box-shadow: 0 3px 0 var(--shadow);
+}
+#share button:disabled { opacity: 0.5; }
+
+/* Settings (GDD #94): switches, volume sliders, and shortcuts to the shop name and shopkeeper. */
+.settings-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; overflow-y: auto; }
+.set-row { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
+.set-label { font-size: 16px; font-weight: 800; }
+.switch {
+  position: relative; width: 52px; height: 30px; padding: 0; border: 0; border-radius: 15px;
+  background: var(--shadow); transition: background 0.2s;
+}
+.switch i {
+  position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; box-shadow: 0 2px 0 rgba(90, 58, 85, 0.2); transition: transform 0.2s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+.switch[aria-checked="true"] { background: var(--pink); }
+.switch[aria-checked="true"] i { transform: translateX(22px); }
+.set-volume { display: flex; align-items: center; gap: 8px; padding: 0 2px 8px; font-size: 14px; }
+.set-volume.off { opacity: 0.4; }
+.set-volume input { flex: 1; min-width: 0; height: 28px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; }
+.set-volume input::-webkit-slider-runnable-track {
+  height: 8px; border-radius: 4px; background: linear-gradient(var(--pink), var(--pink)) 0 / var(--v, 50%) 100% no-repeat, var(--shadow);
+}
+.set-volume input::-moz-range-track { height: 8px; border-radius: 4px; background: var(--shadow); }
+.set-volume input::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--pink); }
+.set-volume input::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 24px; height: 24px; margin-top: -8px; border-radius: 50%;
+  background: #fff; box-shadow: 0 2px 0 rgba(90, 58, 85, 0.25), 0 0 0 2px var(--pink);
+}
+.set-volume input::-moz-range-thumb { width: 24px; height: 24px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--pink); }
+/* The Graphics slider (GDD #145): a white dot on the track at each notch. */
+.set-value { font-size: 14px; font-weight: 800; color: var(--pink); }
+.set-notches input::-webkit-slider-runnable-track {
+  background:
+    radial-gradient(circle, #fff 2.5px, transparent 3px) 2px 50% / 8px 8px no-repeat,
+    radial-gradient(circle, #fff 2.5px, transparent 3px) 50% 50% / 8px 8px no-repeat,
+    radial-gradient(circle, #fff 2.5px, transparent 3px) calc(100% - 2px) 50% / 8px 8px no-repeat,
+    linear-gradient(var(--pink), var(--pink)) 0 / var(--v, 50%) 100% no-repeat, var(--shadow);
+}
+.set-notches + .set-note { margin-top: -4px; }
+.set-section { margin-top: 10px; font-size: 13px; font-weight: 800; opacity: 0.65; }
+.set-links { display: flex; gap: 8px; margin-top: 6px; }
+.set-links button {
+  flex: 1; padding: 12px 0; border: 0; border-radius: 14px; background: #fff; color: var(--ink);
+  font: 800 14px var(--font); box-shadow: 0 3px 0 var(--shadow);
+}
+.set-links button.later { opacity: 0.5; }
+.set-note { margin: 8px 0 0; font-size: 13px; font-weight: 700; opacity: 0.7; }
+
+/* Name your shop (GDD #91): at the top, so the keyboard doesn't cover it. */
+.sheet.top { align-items: flex-start; }
+.sheet.top .sheet-body {
+  padding: calc(env(safe-area-inset-top) + 14px) 14px 16px;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 -40px 0 var(--cream);
+  animation: spring-down 0.4s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+.namer-row { display: flex; gap: 8px; margin-top: 12px; }
+.namer-row input {
+  flex: 1; min-width: 0; padding: 12px 14px;
+  border: 2px solid var(--shadow); border-radius: 14px; background: #fff;
+  color: var(--ink); font: 800 18px var(--font);
+  -webkit-user-select: text; user-select: text;
+}
+.namer-row input:focus { outline: none; border-color: var(--pink); }
+.namer-idea { width: 52px; border: 0; border-radius: 14px; background: var(--butter); font-size: 24px; box-shadow: 0 3px 0 var(--shadow); }
+.namer-note { margin: 8px 2px 12px; min-height: 18px; font-size: 14px; font-weight: 700; opacity: 0.8; }
+.namer-note.bad { color: var(--pink-dark); opacity: 1; }
+.namer-reset { display: block; margin: 10px auto 0; padding: 6px; border: 0; background: none; color: var(--ink); font: 700 14px var(--font); opacity: 0.7; text-decoration: underline; }
+
+.grow-build {
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 3px 0 var(--pink-dark);
+}
+
+.grow-build:disabled { background: var(--shadow); color: rgba(90, 58, 85, 0.6); box-shadow: none; }
+/* "🔒 In the Full shop" (GDD #134): tappable, opens the Full shop card, but doesn't look like a buy button. */
+.grow-build.full-lock { background: #fff; color: var(--pink-dark); box-shadow: inset 0 0 0 2px var(--pink); }
+.grow-build.sure { background: #ff9a6b; } /* Take down floor N, second tap (GDD #160) */
+.grow-card.owned .grow-build:disabled { background: #d4f3e6; color: var(--ink); }
+/* "Choose a room" when no room is affordable yet (GDD #156): tappable but not a buy button; the pink fill is how close you are. */
+.grow-build.short {
+  padding: 8px 0;
+  background: linear-gradient(to right, #fcd9e7 var(--have), #fff var(--have));
+  color: var(--pink-dark);
+  box-shadow: inset 0 0 0 2px var(--pink), 0 3px 0 var(--pink-dark);
+}
+.grow-build.short small { display: block; margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--ink); opacity: 0.75; }
+
+/* ---------- Decorate rooms (ui/styler.js, GDD #68) ---------- */
+#styler {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px calc(env(safe-area-inset-bottom) + 8px);
+  border-radius: 24px 24px 0 0;
+  background: var(--cream);
+  box-shadow: 0 -3px 0 rgba(90, 58, 85, 0.12), 0 40px 0 var(--cream);
+  animation: spring-up 0.4s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+#styler[hidden] { display: none; }
+#styler .deco-head { gap: 8px; }
+.sty-nav { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+.sty-nav h2 { margin: 0; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; flex: 1; }
+.sty-nav button {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+.sty-ribbons { flex-shrink: 0; font-weight: 800; font-size: 15px; color: #d9548b; }
+.sty-tabs { display: flex; gap: 6px; }
+.sty-tabs button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 11px;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+.sty-tabs button span { font-size: 15px; line-height: 18px; }
+.sty-tabs button.on { border-color: var(--pink); background: #ffeef5; }
+/* Each row of choices is one line you swipe sideways, so the panel stays short and the room in view. */
+.sty-rows { display: flex; flex-direction: column; gap: 2px; min-height: 140px; } /* the Walls tab's height, so the room stays framed */
+.sty-row { min-width: 0; }
+.sty-row > span { font-size: 12px; font-weight: 800; opacity: 0.65; }
+.sty-opts { position: relative; display: flex; flex-wrap: nowrap; gap: 6px; padding: 2px 28px 9px 2px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); } /* the fade says: more this way */
+.sty-opts::-webkit-scrollbar { display: none; }
+.sty-opts button { flex-shrink: 0; }
+.sty-opts button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 3px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+.sty-opts button.on { border-color: var(--pink-dark); box-shadow: 0 0 0 2px #fff inset, 0 2px 0 var(--shadow); }
+.sty-opts img, .sty-dot { display: block; width: 100%; height: 100%; border-radius: 8px; }
+.sty-dot { border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(90, 58, 85, 0.12); }
+.sty-emoji { font-size: 24px; line-height: 34px; }
+/* A decoration room's looks (GDD #108): the emoji with the look's name beside it. */
+.sty-opts button.named { width: auto; display: flex; align-items: center; gap: 4px; padding: 3px 10px 3px 6px; }
+.sty-opts button.named b { font-size: 13px; white-space: nowrap; }
+.sty-opts i {
+  position: absolute;
+  right: -5px;
+  bottom: -6px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ffe1ec;
+  color: #b8336a;
+  font-style: normal;
+  font-weight: 800;
+  font-size: 10px;
+}
+.sty-opts button.locked { background: #f7eef2; }
+.sty-buy { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; font-size: 13px; font-weight: 700; }
+.sty-hint { opacity: 0.65; }
+.sty-short { opacity: 0.7; white-space: nowrap; }
+.sty-get {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 3px 0 var(--pink-dark);
+}
+.summary-orderer { margin: -2px 0 8px; padding: 8px 12px; border-radius: 14px; background: #fff4dc; font-weight: 800; font-size: 14px; text-align: center; }
+.summary-unhappy { margin: -2px 0 8px; padding: 8px 12px; border-radius: 14px; background: #eef0fb; font-weight: 800; font-size: 14px; text-align: center; }
+.summary-ribbons { margin: -2px 0 8px; padding: 8px 12px; border-radius: 14px; background: #ffeef5; font-weight: 800; font-size: 14px; text-align: center; }
+.floater.ribbon { font-size: 20px; color: #d9548b; }
+
+/* ---------- Shopkeeper creator (a bottom panel, like decorate mode) ---------- */
+#creator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
+  border-radius: 24px 24px 0 0;
+  background: var(--cream);
+  box-shadow: 0 -3px 0 rgba(90, 58, 85, 0.12), 0 40px 0 var(--cream);
+  animation: spring-up 0.4s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+
+#creator[hidden] { display: none; }
+.creator-actions { display: flex; gap: 8px; }
+.creator-random {
+  width: 40px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 20px;
+  box-shadow: 0 3px 0 var(--shadow);
+}
+.creator-random:active { transform: translateY(2px) rotate(-20deg); box-shadow: 0 1px 0 var(--shadow); }
+/* Each row is one line you swipe sideways, its name beside it, so the panel stays short and your shopkeeper in view. */
+.creator-rows { display: flex; flex-direction: column; gap: 2px; }
+.creator-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.creator-row > span { flex: 0 0 52px; font-size: 11px; font-weight: 800; line-height: 1.15; opacity: 0.65; }
+.creator-opts { position: relative; display: flex; flex-wrap: nowrap; gap: 6px; min-width: 0; padding: 3px 28px 5px 2px; overflow-x: auto;
+  overscroll-behavior-x: contain; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.creator-opts::-webkit-scrollbar { display: none; }
+.creator-opts button { flex-shrink: 0; white-space: nowrap; }
+
+.creator-opts button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+
+.creator-opts button.swatch { width: 36px; padding: 0; border-radius: 50%; }
+.creator-opts button.locked { opacity: 0.5; }
+.creator-opts button.swatch.locked { position: relative; }
+.creator-opts button.swatch.locked::after { content: '🔒'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; }
+.creator-opts button.on { border-color: var(--pink-dark); box-shadow: 0 0 0 2px #fff inset, 0 2px 0 var(--shadow); }
+
+/* ---------- Decorate mode ---------- */
+#decorate {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 48dvh; /* the dollhouse stays in view; the items scroll inside (with every color there are dozens) */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
+  border-radius: 24px 24px 0 0;
+  background: var(--cream);
+  box-shadow: 0 -3px 0 rgba(90, 58, 85, 0.12), 0 40px 0 var(--cream);
+  animation: spring-up 0.4s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+
+#decorate[hidden] { display: none; }
+.deco-head { display: flex; align-items: center; justify-content: space-between; }
+.deco-head h2 { margin: 0; font-size: 18px; }
+.deco-sparkle { margin-left: 4px; font-size: 15px; color: #c98a1c; }
+
+.deco-done {
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--pink-dark);
+}
+
+.deco-rooms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+
+.deco-rooms button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 11px;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+
+.deco-rooms button.on { border-color: var(--pink); background: #ffeef5; }
+/* Nine rooms (GDD #92): one line you swipe sideways, like the decorate panel's rows. */
+.deco-rooms.many { display: flex; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding: 0 28px 4px 0;
+  -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.deco-rooms.many::-webkit-scrollbar { display: none; }
+.deco-rooms.many button { flex: 0 0 82px; white-space: nowrap; }
+.deco-rooms img { width: 36px; height: 36px; }
+.deco-room-ico { font-size: 24px; line-height: 36px; height: 36px; opacity: 0.6; }
+.deco-hint { font-size: 13px; font-weight: 700; opacity: 0.75; }
+
+.deco-items { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; flex: 1 1 auto; min-height: 76px; overflow-y: auto; overscroll-behavior: contain; padding: 2px 6px 8px 2px; }
+#decorate > :not(.deco-items) { flex-shrink: 0; }
+
+.deco-items button {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 12px;
+  box-shadow: 0 3px 0 var(--shadow);
+}
+
+.deco-items button.on { border-color: var(--pink); background: #ffeef5; }
+.deco-items img { width: 100%; height: 100%; }
+.deco-items i { position: absolute; right: -4px; bottom: -6px; padding: 0 5px; border-radius: 8px; background: var(--butter); font-style: normal; font-size: 11px; }
+.deco-items button.locked { background: #f7eef2; box-shadow: none; }
+.deco-items button.locked img { filter: brightness(0); opacity: 0.18; }
+.deco-items button.locked i { display: none; }
+.deco-items .deco-empty { opacity: 0.8; }
+
+.bubble.peek img { display: inline-block; vertical-align: middle; width: 32px; height: 32px; }
+.floater.sparkle { font-size: 20px; color: #c98a1c; }
+
+/* ---------- Confetti (ui/confetti.js) ---------- */
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti i { position: absolute; left: 0; top: 0; width: 8px; height: 12px; border-radius: 2px; }
+.bubble.place button small { display: block; margin-top: -6px; font-size: 11px; font-weight: 800; }
+.bubble.place button.short { background: rgba(170, 150, 175, 0.85); }
+
+/* ---------- Order book catalog pages (GDD #66) ---------- */
+.page-tabs { display: grid; flex-shrink: 0; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 0 10px; padding-bottom: 2px; }
+.page-tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 2px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 12px;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+.page-tab[hidden] { display: none; }
+.page-tab span { font-size: 16px; }
+.page-tab.on { background: var(--pink); color: #fff; box-shadow: 0 2px 0 var(--pink-dark); }
+.page-tab.locked:not(.on) { background: #f7eef2; color: rgba(90, 58, 85, 0.55); box-shadow: none; }
+.page-tab.new::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff6f91;
+  box-shadow: 0 0 0 2px #fff;
+}
+.page-lock { flex-shrink: 0; margin: -2px 0 10px; padding: 8px 12px; border-radius: 14px; background: #fff4dc; font-size: 13px; font-weight: 700; text-align: center; }
+.card[hidden] { display: none; }
+.card.locked { background: #f7eef2; box-shadow: none; }
+.card.locked img { filter: brightness(0); opacity: 0.18; }
+/* Penny the Orderer's switch (GDD #97) */
+.orderer-bar { display: flex; flex-shrink: 0; align-items: center; gap: 10px; margin: 2px 0 4px; padding: 8px 12px; border-radius: 16px; background: #fff; box-shadow: 0 2px 0 var(--shadow); }
+.orderer-bar[hidden] { display: none; }
+.orderer-bar > span { font-size: 22px; }
+.orderer-bar > div { flex: 1; display: flex; flex-direction: column; font-size: 14px; line-height: 1.25; }
+.orderer-bar small { font-size: 12px; font-weight: 700; opacity: 0.65; }
+
+/* Each page's color (GDD #99) */
+.page-colors { display: flex; flex-shrink: 0; gap: 6px; margin: -4px 0 10px; }
+.page-colors[hidden] { display: none; }
+.page-color {
+  flex: 1;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 0 var(--shadow);
+}
+.page-color[hidden] { display: none; }
+.page-color.on { background: var(--ink); color: #fff; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }
+.page-color.locked { background: #f7eef2; color: rgba(90, 58, 85, 0.55); box-shadow: none; }
+.color-lock { flex-shrink: 0; margin: -4px 0 10px; padding: 6px 12px; border-radius: 14px; background: #fff4dc; font-size: 12px; font-weight: 700; text-align: center; }
+.color-lock[hidden] { display: none; }
+.color-lock .full-get { display: block; margin: 6px auto 0; padding: 6px 14px; border: 0; border-radius: 12px; background: var(--pink, #ff8fb8); color: #fff; font: inherit; font-size: 13px; }
+
+/* Collection album: one section per theme */
+.album-set { grid-column: 1 / -1; display: flex; justify-content: space-between; margin: 8px 2px 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.65; }
+.album-set:first-child { margin-top: 0; }
+.album-reward { grid-column: 1 / -1; margin: -2px 2px 4px; font-size: 12px; font-weight: 700; opacity: 0.6; }
+.album-reward.done { opacity: 0.9; color: #b8336a; }
+/* 📖 Story in the album (GDD #147): folds open to the chapters so far, each folding open to its lines. */
+.album-story { grid-column: 1 / -1; margin: 0 0 6px; padding: 8px 10px; border-radius: 14px; background: #fff; box-shadow: 0 2px 0 var(--shadow); }
+.album-story > summary { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; list-style: none; cursor: pointer; }
+.album-story > summary::-webkit-details-marker, .story-ch > summary::-webkit-details-marker { display: none; }
+.album-story > summary span:first-child::after { content: ' ▸'; }
+.album-story[open] > summary span:first-child::after { content: ' ▾'; }
+.story-ch { margin-top: 6px; }
+.story-ch > summary { font-weight: 800; font-size: 14px; list-style: none; cursor: pointer; }
+.story-ch p { margin: 4px 0 0 10px; font-size: 13px; line-height: 1.35; }
+.story-ch p b { color: var(--pink-dark); }
+.story-next { margin: 8px 0 0; font-size: 13px; font-weight: 700; opacity: 0.8; }
+.story-next .grow-build { display: block; margin-top: 6px; }
+.sty-buy small { font-weight: 700; opacity: 0.7; }
+
+/* The delivery bin's list (GDD #74): box cards you tap to fetch. */
+.card.bin-box { font: inherit; color: inherit; cursor: pointer; }
+.card.bin-box.on { box-shadow: 0 0 0 3px var(--pink), 0 3px 0 var(--shadow); }
+
+/* ---------- Visit page (visit.html, GDD #91) ---------- */
+#visit-head {
+  position: absolute; top: calc(env(safe-area-inset-top) + 12px); left: 16px; right: 16px;
+  padding: 10px 14px; border-radius: 18px; background: var(--cream); box-shadow: 0 3px 0 var(--shadow);
+  text-align: center; pointer-events: none; animation: spring-down 0.5s cubic-bezier(0.25, 1.35, 0.5, 1);
+}
+#visit-head[hidden], #visit-bar[hidden] { display: none; }
+.visit-welcome { font-size: 18px; font-weight: 800; }
+.visit-name { color: var(--pink-dark); }
+.visit-tip { margin-top: 2px; font-size: 13px; font-weight: 700; opacity: 0.7; }
+#visit-bar {
+  position: absolute; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 16px);
+  display: flex; justify-content: center; gap: 8px;
+}
+#visit-bar button {
+  padding: 12px 18px; border: 0; border-radius: 16px; background: var(--cream); color: var(--ink);
+  font: 800 15px var(--font); box-shadow: 0 4px 0 var(--shadow);
+}
+#visit-bar button:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--shadow); }
+#visit-bar button[hidden] { display: none; }
+
+/* ---------- Decoration packs (GDD #106) ---------- */
+/* Seven tabs fit at phone width (room tabs, 🏡 Outside and 🎁 Packs); a few more would scroll. */
+.sty-tabs { gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.sty-tabs::-webkit-scrollbar { display: none; }
+.sty-tabs button { flex: 1 1 0; min-width: 44px; padding: 2px 1px; font-size: 10px; white-space: nowrap; }
+.sty-opts button.named i { right: -4px; bottom: -6px; }
+.sty-packs { display: flex; gap: 10px; padding: 4px 2px; overflow-x: auto; }
+.sty-pack {
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 120px; padding: 10px 14px;
+  border: 0; border-radius: 16px; background: linear-gradient(160deg, #fff 0%, #ffeef5 100%); color: var(--ink);
+  box-shadow: 0 3px 0 var(--shadow);
+}
+.sty-pack-ico { font-size: 34px; line-height: 40px; }
+.sty-pack b { font-size: 14px; }
+.sty-pack small { font-weight: 800; color: #b8336a; }
+.creator-pack { margin-top: 2px; }
+.creator-pack[hidden] { display: none; }
+.creator-opts button.pack { background: #fff4f8; }
+.creator-opts button.swatch { position: relative; }
+.creator-opts button.swatch span { font-size: 14px; }
+.creator-opts button.swatch.pack::after {
+  content: '🎁'; position: absolute; right: -5px; bottom: -5px; font-size: 12px; line-height: 1;
+}
+
+.pack-body { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-top: 8px; }
+.pack-pic {
+  display: grid; place-items: center; height: 120px; border-radius: 18px; font-size: 64px;
+  background: linear-gradient(180deg, #2b2d6e 0%, #5b4a9e 60%, #f7fbff 60%, #e3eef8 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+.pack-pic { flex-shrink: 0; height: auto; aspect-ratio: 2 / 1; overflow: hidden; }
+#pack .sheet-body { max-height: 88%; }
+.pack-pic img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pack-pic span { filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.15)); }
+.pack-blurb { margin: 0; font-weight: 800; font-size: 15px; }
+.pack-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; }
+.pack-list li { display: flex; gap: 8px; align-items: flex-start; }
+.pack-list li span { flex: 0 0 22px; text-align: center; }
+.pack-note, .pack-test { margin: 0; font-size: 12px; font-weight: 700; opacity: 0.65; }
+.pack-owned { padding: 12px; border-radius: 14px; background: #e3f6ea; font-weight: 800; text-align: center; }
+.pack-restore { align-self: center; border: 0; background: none; color: var(--ink); font-weight: 800; font-size: 13px; text-decoration: underline; opacity: 0.7; }
+
+/* The grown-up check: a card in the middle of the screen. */
+.sheet.middle { align-items: center; justify-content: center; }
+.sheet.middle .sheet-body { width: min(340px, calc(100% - 32px)); border-radius: 24px; box-shadow: none; }
+.gu-ask { margin: 10px 0 6px; text-align: center; font-weight: 700; font-size: 15px; }
+.gu-ask b { display: block; margin-top: 4px; font-size: 22px; color: #b8336a; }
+.gu-note { display: block; color: #d9548b; font-weight: 800; }
+.gu-typed { height: 44px; margin: 0 auto 8px; min-width: 96px; padding: 0 16px; border-radius: 14px; background: #fff;
+  box-shadow: inset 0 0 0 2px var(--shadow); font: 800 28px/44px var(--font); text-align: center; letter-spacing: 6px; }
+.gu-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.gu-pad button { height: 48px; border: 0; border-radius: 14px; background: #fff; color: var(--ink); font: 800 22px var(--font); box-shadow: 0 3px 0 var(--shadow); }
+.gu-pad button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--shadow); }
+
+/* Welcome back: offline earnings (GDD #128), a card in the middle of the screen. */
+.wb-title { margin: 4px 0 0; text-align: center; }
+.wb-text { margin: 8px 0 4px; text-align: center; font-weight: 700; font-size: 15px; }
+.wb-coins { margin: 6px 0 14px; text-align: center; font-weight: 800; font-size: 34px; color: #b8336a;
+  animation: floater-in 0.5s 0.15s cubic-bezier(0.25, 1.6, 0.5, 1) both; }
+
+/* Moving a shop into the app (GDD #120) */
+.set-code { width: 100%; box-sizing: border-box; margin-top: 8px; padding: 10px; border: 2px solid var(--shadow); border-radius: 14px;
+  background: #fff; color: var(--ink); font: 700 12px/1.3 ui-monospace, monospace; resize: none; -webkit-user-select: text; user-select: text; }
+.set-error { margin: 8px 0 0; color: #c0392b; font-size: 13px; font-weight: 800; }
+.set-found { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; padding: 12px; border-radius: 16px; background: #fff4dc; }
+.set-found b { font-size: 16px; }
+.set-found span { font-size: 13px; font-weight: 700; }
+.set-found p { margin: 4px 0; font-size: 13px; font-weight: 700; opacity: 0.75; }
+.pack-away { margin: 0; padding: 12px; border-radius: 14px; background: #fff4dc; font-weight: 800; font-size: 14px; text-align: center; }
+
+/* What's new in Decorate (GDD #122): a dot on the 🎨 button and the tabs, a "new" tag on the looks. */
+#toolbar button { position: relative; }
+#toolbar button.new::after, .sty-tabs button.new::after {
+  content: ''; position: absolute; top: 4px; right: 6px; width: 10px; height: 10px; border-radius: 50%;
+  background: #ff6f91; box-shadow: 0 0 0 2px #fff;
+}
+.sty-tabs button { position: relative; }
+.sty-tabs button.new::after { top: 2px; right: 3px; width: 8px; height: 8px; }
+.sty-opts button.new::before {
+  content: 'new'; position: absolute; left: -4px; top: -6px; z-index: 1; padding: 0 4px; border-radius: 8px;
+  background: #ff6f91; color: #fff; font: 800 9px/14px var(--font);
+}
+.sty-opts { padding-top: 7px; }
+.sty-fresh { opacity: 1; color: #b8336a; font-weight: 800; }
+
+/* ---------- Help book (ui/help.js, GDD §12.1) ---------- */
+/* The ❓ on the big panels (GDD #125, #126), just left of their ✕ or Done. */
+.help-link {
+  flex-shrink: 0; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%;
+  background: #fff; box-shadow: 0 2px 0 var(--shadow); font-size: 16px;
+}
+.sheet-head .help-link { margin-left: auto; margin-right: 8px; }
+#decorate .deco-head .help-link { margin-left: auto; margin-right: 8px; }
+
+#help .sheet-body { max-height: 80%; }
+.help-head { gap: 8px; min-height: 36px; }
+.help-head h2 { flex: 1; }
+.help-contents {
+  padding: 8px 12px; border: 0; border-radius: 14px; background: #fff; color: var(--ink);
+  font: 800 14px var(--font); box-shadow: 0 2px 0 var(--shadow);
+}
+.help-contents[hidden] { display: none; }
+.help-page { overflow-y: auto; margin-top: 8px; touch-action: pan-y; min-height: 0; flex: 1; }
+.help-title { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.help-title span { font-size: 30px; line-height: 1; }
+.help-title h3 { margin: 0; font-size: 20px; }
+.help-new, .help-tiles button.new::before {
+  padding: 0 6px; border-radius: 8px; background: #ff6f91; color: #fff; font: 800 11px/18px var(--font); font-style: normal;
+}
+.help-shot { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 16px; background: #e8f4fb; box-shadow: 0 3px 0 var(--shadow); }
+.help-art {
+  display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 16 / 7;
+  border-radius: 16px; background: #fff4dc; font-size: 44px; letter-spacing: 6px; box-shadow: 0 3px 0 var(--shadow);
+}
+.help-cute { margin: 12px 2px 8px; font-size: 16px; font-weight: 700; line-height: 1.4; }
+.help-mine { margin: 0 0 10px; padding: 8px 12px; border-radius: 14px; background: #ffe3ef; font-size: 14px; font-weight: 800; color: #b8336a; }
+.help-how { margin-bottom: 6px; border-radius: 14px; background: #fff; box-shadow: 0 2px 0 var(--shadow); }
+.help-how summary { padding: 10px 12px; font-weight: 800; font-size: 15px; cursor: pointer; list-style: none; }
+.help-how summary::-webkit-details-marker { display: none; }
+.help-how summary::after { content: '▾'; float: right; transition: transform 0.2s; }
+.help-how[open] summary::after { transform: rotate(180deg); }
+.help-how ul { margin: 0; padding: 0 14px 12px 30px; font-size: 14px; font-weight: 600; line-height: 1.45; }
+.help-how li + li { margin-top: 6px; }
+.help-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.help-nav[hidden] { display: none; }
+.help-nav button {
+  width: 56px; height: 40px; border: 0; border-radius: 14px; background: var(--pink); color: #fff;
+  font-size: 16px; box-shadow: 0 3px 0 var(--pink-dark);
+}
+.help-nav button:disabled { background: var(--shadow); box-shadow: none; opacity: 0.6; }
+.help-count { font-weight: 800; font-size: 14px; opacity: 0.75; }
+.help-group { margin: 12px 2px 6px; font-weight: 800; font-size: 14px; opacity: 0.7; }
+.help-group:first-child { margin-top: 0; }
+.help-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.help-tiles button {
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 10px; border: 0; border-radius: 14px;
+  background: #fff; color: var(--ink); font: 800 13px/1.2 var(--font); text-align: left; box-shadow: 0 2px 0 var(--shadow);
+}
+.help-tiles button span { font-size: 22px; flex-shrink: 0; }
+.help-tiles button.new::before { content: 'new'; position: absolute; top: -6px; right: -2px; }
