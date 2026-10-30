@@ -117,7 +117,7 @@ export const PACKS = {
       ['🛍️', 'More shelf rooms and decoration rooms, on any ＋ spot'],
       ['🪜', 'The Stairwell, with floor after floor upstairs'],
       ['🛎️', 'Register rooms, each with its own cashier'],
-      ['🌈', 'Bright and 💎 Dazzle colors of every item: 64 more stickers, with their prizes'],
+      ['🌈', 'Bright and 💎 Dazzle colors of every item: 64 more to find, with their prizes'],
       ['🧰', 'More helpers and upgrades: Ollie, Rosa, Penny, the Big Cart, Roller Skates, Tall Shelves and the Bigger Dream Dollhouse'],
     ],
   },

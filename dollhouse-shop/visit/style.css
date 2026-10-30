@@ -604,7 +604,7 @@ body.moving #toolbar { display: none; }
 .summary-actions .summary-next { background: var(--pink); color: #fff; box-shadow: 0 3px 0 var(--pink-dark); }
 
 /* ---------- Collection album ---------- */
-.stickers {
+.album-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
@@ -612,7 +612,7 @@ body.moving #toolbar { display: none; }
   padding-bottom: 4px;
 }
 
-.sticker {
+.album-card {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -623,13 +623,13 @@ body.moving #toolbar { display: none; }
   box-shadow: 0 3px 0 var(--shadow);
 }
 
-.sticker img { width: 60px; height: 60px; }
-.sticker .card-name { font-size: 12px; line-height: 1.2; }
-.sticker .card-sub { font-size: 11px; margin: 2px 0 0; text-align: center; }
-.sticker.locked { background: #f7eef2; box-shadow: none; }
-.sticker.locked img { filter: brightness(0); opacity: 0.18; }
-.sticker.locked .card-name { opacity: 0.55; }
-.sticker .badge { position: absolute; top: 4px; right: 6px; font-style: normal; font-size: 16px; }
+.album-card img { width: 60px; height: 60px; }
+.album-card .card-name { font-size: 12px; line-height: 1.2; }
+.album-card .card-sub { font-size: 11px; margin: 2px 0 0; text-align: center; }
+.album-card.locked { background: #f7eef2; box-shadow: none; }
+.album-card.locked img { filter: brightness(0); opacity: 0.18; }
+.album-card.locked .card-name { opacity: 0.55; }
+.album-card .badge { position: absolute; top: 4px; right: 6px; font-style: normal; font-size: 16px; }
 
 /* ---------- Grow sheet: rooms, helpers, upgrades ---------- */
 .grow-list { overflow-y: auto; margin: 0 -4px; padding: 0 4px 4px; }

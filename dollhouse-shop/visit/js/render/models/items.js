@@ -425,7 +425,7 @@ export function buildItem(itemId) {
   return itemModels.get(itemId).clone();
 }
 
-/** A cardboard delivery box with a sticker in the item's color. Origin at its bottom center. */
+/** A cardboard delivery box with a label in the item's color. Origin at its bottom center. */
 export function buildBox(itemId, size) {
   const key = `${itemId}|${size}`;
   if (!boxModels.has(key)) {
