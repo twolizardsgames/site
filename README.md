@@ -8,7 +8,8 @@ The Two Lizards Games studio site: plain HTML and CSS, no build step, meant for 
 - `dollhouse-shop/visit/`: the game's share-link visit page (`https://twolizardsgames.com/dollhouse-shop/visit/#v1.…`).
   **Generated, don't edit by hand:** the game repo's `npm run release` copies it from each release
   (`scripts/visit-export.js` in esalavat/shop-game) and commits and pushes it here
-- `privacy/`: privacy policy (the stores link to `https://twolizardsgames.com/privacy/`)
+- `privacy/`: studio privacy page: links to each game's policy, plus this website and email
+- `dollhouse-shop/privacy/`: My Dream Dollhouse Shop's privacy policy (the stores link to `https://twolizardsgames.com/dollhouse-shop/privacy/`)
 - `support/`: support email and FAQs (the stores link to `https://twolizardsgames.com/support/`)
 - `img/logo.svg`: the logo (the user's picture of two chameleons, cropped round), in the header and as the browser-tab icon
 - `img/two-lizards.jpg`: the whole picture with "TWO LIZARDS", at the top of the home page
@@ -17,4 +18,4 @@ Run it locally: `python3 -m http.server 8790`, then open http://localhost:8790.
 
 Rules: no business street address, account numbers or ID numbers on the site (it's public). No cookies, analytics,
 web fonts or scripts from other sites, so the privacy policy stays true. When the game's behavior changes (anything
-it stores, sends or asks permission for), update `privacy/` to match before the change ships.
+it stores, sends or asks permission for), update its policy (e.g. `dollhouse-shop/privacy/`) to match before the change ships.
