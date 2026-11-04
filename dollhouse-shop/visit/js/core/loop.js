@@ -23,14 +23,17 @@ export function createPacer(maxFps = MAX_FPS) {
   };
 }
 
+/** Runs until `stop()` on what it returns. */
 export function startLoop({ tickRate = 10, tick, frame }) {
   const step = 1 / tickRate;
   const due = createPacer();
   let acc = 0;
   let last = performance.now();
   let elapsed = 0;
+  let stopped = false;
 
   function onFrame(now) {
+    if (stopped) return;
     requestAnimationFrame(onFrame);
     if (!due(now)) return;
     // The first frame's timestamp can be earlier than `last` (it's when that frame began, and a slow
@@ -50,4 +53,5 @@ export function startLoop({ tickRate = 10, tick, frame }) {
     if (!document.hidden) last = performance.now();
   });
   requestAnimationFrame(onFrame);
+  return { stop() { stopped = true; } }; // the title screen's loop ends when the game starts (GDD #177)
 }

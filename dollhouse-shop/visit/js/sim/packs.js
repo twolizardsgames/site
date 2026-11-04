@@ -6,7 +6,7 @@
 // (core/gift.js) or by buying the everything bundle (GDD #171).
 
 import { events } from '../core/events.js';
-import { PACKS } from '../data/packs.js';
+import { PACKS, PACK_IDS, BUNDLE } from '../data/packs.js';
 
 export const ownsPack = (state, id) => (state.allPacks ? !!PACKS[id] : !!state.packs?.[id]);
 
@@ -26,6 +26,20 @@ export function givePack(state, id) {
   if (PACKS[id].outside) state.outside = id;
   events.emit('packGot', { id });
   return true;
+}
+
+/**
+ * The everything bundle's offer on a pack card (GDD #175): shown while the bundle isn't yours and everything you
+ * don't have yet costs more than the bundle, bought one by one. `amount(id)` is a price as a number (the store's, in
+ * the player's currency). Returns { price, worth, all } (`all`: nothing bought yet) or null.
+ */
+export function bundleOffer(state, amount) {
+  if (!PACKS[BUNDLE] || ownsPack(state, BUNDLE)) return null;
+  const left = PACK_IDS.filter((id) => id !== BUNDLE && !ownsPack(state, id));
+  const price = amount(BUNDLE);
+  const worth = Math.round(left.reduce((sum, id) => sum + amount(id), 0) * 100) / 100;
+  if (!(worth > price)) return null; // also when a price is unknown (NaN)
+  return { price, worth, all: left.length === PACK_IDS.length - 1 };
 }
 
 /** Take a pack away again (the debug panel only; a store purchase is never undone). */

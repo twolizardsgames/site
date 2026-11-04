@@ -1,5 +1,4 @@
-// Packing JSON into short, link-safe text: deflate, then base64url. Used by share links (sim/share.js) and save
-// codes for moving a shop into the app (core/transfer.js). CompressionStream is in every browser and in Node 18+.
+// Packing JSON into short, link-safe text: deflate, then base64url. Used by share links (sim/share.js). CompressionStream is in every browser and in Node 18+.
 
 export function toBase64Url(bytes) {
   let bin = '';
