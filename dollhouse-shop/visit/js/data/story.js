@@ -25,6 +25,7 @@ export const STORY_ROOMS = {
   kitchen: { name: 'Kitchen', icon: '🍪', decor: { paper: 'butter', pattern: 'gingham', floor: 'whitewood' } },
   workshop: { name: "Dollmaker's Workshop", icon: '🔨', decor: { paper: 'mint', pattern: 'plain', floor: 'honey' } },
   ribbon: { name: 'Blue Ribbon Room', icon: '🏆', decor: { paper: 'sky', pattern: 'blueribbon', floor: 'whitewood' } },
+  gallery: { name: "Collector's Gallery", icon: '🌟', decor: { paper: 'gold', pattern: 'plain', floor: 'cocoa' } },
 };
 
 /** The fair's Sparkle target (chapter 11). */
@@ -32,12 +33,13 @@ export const FAIR_SPARKLE = 1000;
 
 /**
  * The chapters, in order. `when`: { day } (on or after that day), { hearts } (Hearts so far) or { sparkle } (the
- * Sparkle count). `full`: needs the Full shop (GDD #148: only the Piano Room's chapters are free). `who`: the
+ * Sparkle count), { album: true } (every item in the Collection found, GDD #186). `full`: needs the Full shop (GDD #148: only the Piano Room's chapters are free). `who`: the
  * visitors, the first one leading; each line names its speaker. `reward`: { room } (a story room to place),
  * { decor: true } (decorating opens, GDD #151), { looks: true } (the blue-ribbon outfit and wallpaper). `in`: a story
  * room the scene plays in, if it's built (the shopkeeper hops there first and back after, GDD #154). `early`: a chapter
  * that, once seen, lets this one come out of turn, ahead of chapters still waiting (the fair's result right after
- * Maple's "get your Sparkle to 1,000", without waiting for the workbench, GDD #159).
+ * Maple's "get your Sparkle to 1,000", without waiting for the workbench, GDD #159). `side`: not part of the story's
+ * order (GDD #186): it comes as soon as its moment has come, ahead of the next chapter, and the story can end without it.
  */
 export const CHAPTERS = [
   {
@@ -150,7 +152,20 @@ export const CHAPTERS = [
       ['maple', 'You brought the old shop back to life. Here, something blue to wear, and a wallpaper to match. 🎀'],
     ],
   },
+  {
+    id: 'gallery', title: 'Every single one', when: { album: true }, side: true, who: ['lily', 'maple'], full: true, reward: { room: 'gallery' },
+    lines: [
+      ['lily', 'Is it true? You found EVERY dollhouse piece? In every color?'],
+      ['maple', 'In forty years, I never once had the whole collection at the same time.'],
+      ['lily', 'I counted them all in your album. Ninety-six!'],
+      ['maple', 'We found the shop\'s old glass cabinets up in the attic. They were made for a collection like yours.'],
+      ['maple', "Let's give them a room of their own, so everyone can see. 🌟"],
+    ],
+  },
 ];
+
+/** The chapters the story is told in, in order (not the side visits, GDD #186). */
+export const MAIN_CHAPTERS = CHAPTERS.filter((c) => !c.side);
 
 export const chapterById = (id) => CHAPTERS.find((c) => c.id === id) ?? null;
 

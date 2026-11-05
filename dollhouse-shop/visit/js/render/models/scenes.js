@@ -7,6 +7,8 @@ import * as THREE from 'three';
 import { box, cyl, ball, mesh } from './prims.js';
 import { PALETTE as P, gradientMap } from '../toon.js';
 import { parrot, toucan, PARROTS } from './critters.js';
+import { addItemParts } from './items.js';
+import { ITEMS, themeId } from '../../data/items.js';
 import { deckChair, umbrella, sandcastle, bucket, surfboard, beachBall, starfish, shells, SAND, BEACH_STRIPES } from './beach.js';
 
 const WALL = -0.66; // just in front of the room's back wall
@@ -345,6 +347,35 @@ function dollhouse(g, x, y, z, s, colors, open = false) {
   box(g, s * 0.18, s * 0.32, 0.02, DARK_WOOD, x, y + s * 0.16, z + s * 0.35).castShadow = false;
   for (const dx of [-0.3, 0.3]) box(g, s * 0.16, s * 0.16, 0.02, WATER, x + dx * s, y + s * 0.55, z + s * 0.35).castShadow = false;
 }
+
+/** Velvet ropes on gold posts across the front, from -w to w at z. */
+function ropes(g, w, z) {
+  for (const x of [-w, w]) {
+    cyl(g, 0.1, 0.12, 0.04, 10, GOLD, x, 0.02, z);
+    cyl(g, 0.025, 0.025, 0.7, 6, GOLD, x, 0.37, z);
+    ball(g, 0.045, GOLD, x, 0.74, z, 0);
+  }
+  const rope = mesh(g, new THREE.TorusGeometry(w, 0.025, 5, 16, Math.PI), RED, 0, 0.68, z);
+  rope.rotation.z = Math.PI;
+  rope.scale.y = 0.35;
+}
+
+/** A flat five-pointed star facing the front, `r` across, at (x, y, z). */
+function wallStar(g, x, y, z, r, color = GOLD) {
+  const sh = new THREE.Shape();
+  for (let i = 0; i < 10; i++) {
+    const a = Math.PI / 2 + (i * Math.PI) / 5, rr = i % 2 ? r * 0.45 : r;
+    if (i) sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); else sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
+  }
+  const star = mesh(g, new THREE.ExtrudeGeometry(sh, { depth: 0.03, bevelEnabled: false }), color, x, y, z);
+  star.castShadow = false;
+  return star;
+}
+
+// The Collector's Gallery's glass: one shared see-through material (its panes are the room's only extra draw calls).
+const GLASS = new THREE.MeshBasicMaterial({ color: '#dff4ff', transparent: true, opacity: 0.16, depthWrite: false });
+/** Every item in its last (Dazzle) color, page by page: the gallery shows the whole Collection (GDD #186). */
+const galleryItems = (page) => Object.keys(ITEMS).filter((id) => !ITEMS[id].round && ITEMS[id].page === page).map((id) => themeId(id, 2));
 
 // The Fairy Glen (GDD #161).
 const STUMP = '#9a6a4a', MOSS = '#7cc77a', DOOR_WOOD = '#6e4430', STALK = '#fff3e0', CAP_RED = '#e8394f', POND = '#9fd8f0';
@@ -839,15 +870,7 @@ export const SCENES = {
     box(g, 0.58, 0.06, 0.58, P.sky, 0, 0.78, -0.2);
     trophy(g, 0, 0.81, -0.2, 0.62);
     rosette(g, 0, 1.78, WALL + 0.03, 0.3);
-    // Velvet ropes on gold posts round the front.
-    for (const x of [-0.6, 0.6]) {
-      cyl(g, 0.1, 0.12, 0.04, 10, GOLD, x, 0.02, 0.35);
-      cyl(g, 0.025, 0.025, 0.7, 6, GOLD, x, 0.37, 0.35);
-      ball(g, 0.045, GOLD, x, 0.74, 0.35, 0);
-    }
-    const rope = mesh(g, new THREE.TorusGeometry(0.6, 0.025, 5, 16, Math.PI), RED, 0, 0.68, 0.35);
-    rope.rotation.z = Math.PI;
-    rope.scale.y = 0.35;
+    ropes(g, 0.6, 0.35); // velvet ropes round the front
     box(g, 0.7, 0.012, 1.0, RED, 0, 0.006, 0.15).castShadow = false; // a red carpet up to it
     // Certificates on the left, a glass cabinet of smaller prizes on the right.
     picture(g, -1.0, 1.6, 0.38, 0.28, '#fffaf0');
@@ -871,6 +894,41 @@ export const SCENES = {
       cyl(g, 0.12, 0.1, 0.22, 8, WHITE, x, 0.11, -0.45);
       bush(g, x, -0.45, 0.16, [], 0.18);
     }
+  },
+
+  // The Collector's Gallery (GDD #186, the whole album found): the shop's old glass cabinets from the attic with one of
+  // each item in its Dazzle color, the eight biggest (the Treasures page) on a tiered stand in the middle, a gold
+  // plaque on the wall, a red carpet in front.
+  gallery(g) {
+    const small = [0, 1, 2].flatMap(galleryItems), big = galleryItems(3);
+    const cw = 0.86, cd = 0.36, ch = 2.1, cz = WALL + cd / 2 + 0.01, boards = [0.1, 0.58, 1.06, 1.54];
+    [-1.03, 1.03].forEach((cx, c) => {
+      box(g, cw, ch, 0.03, DARK_WOOD, cx, ch / 2, WALL + 0.02); // back
+      for (const dx of [-1, 1]) box(g, 0.05, ch, cd, DARK_WOOD, cx + dx * (cw / 2 - 0.025), ch / 2, cz);
+      box(g, cw + 0.06, 0.07, cd + 0.04, DARK_WOOD, cx, ch + 0.035, cz); // top
+      box(g, cw + 0.04, 0.03, 0.03, GOLD, cx, ch - 0.06, cz + cd / 2).castShadow = false; // gold trim
+      boards.forEach((y, row) => {
+        box(g, cw - 0.1, 0.03, cd - 0.04, row ? P.cream : DARK_WOOD, cx, y, cz);
+        for (let i = 0; i < 3; i++) {
+          const id = small[c * 12 + row * 3 + i];
+          if (id) addItemParts(g, id, cx + (i - 1) * 0.25, y + 0.015, cz + 0.02, 1.25);
+        }
+      });
+      const pane = mesh(g, new THREE.PlaneGeometry(cw - 0.08, ch - 0.12), GLASS, cx, ch / 2, cz + cd / 2 + 0.005);
+      pane.castShadow = pane.receiveShadow = false;
+    });
+    // The tiered stand: four items at the back, four in front, a step lower.
+    for (const [y, z, h] of [[0.5, -0.38, 0.5], [0.22, -0.04, 0.22]]) {
+      box(g, 1.1, h, 0.3, WHITE, 0, h / 2, z);
+      box(g, 1.14, 0.03, 0.32, P.lilac, 0, h + 0.015, z).castShadow = false;
+      const row = z < -0.2 ? big.slice(0, 4) : big.slice(4);
+      row.forEach((id, i) => addItemParts(g, id, (i - 1.5) * 0.27, y + 0.03, z, 1.15));
+    }
+    // A gold plaque that says the Collection is complete (lines of "writing", a star either side).
+    picture(g, 0, 1.4, 0.56, 0.26, '#fff6d8');
+    for (const [dy, w] of [[0.06, 0.3], [0, 0.36], [-0.06, 0.22]]) box(g, w, 0.02, 0.01, P.ink, 0, 1.4 + dy, WALL + 0.025).castShadow = false;
+    for (const x of [-0.42, 0.42]) wallStar(g, x, 1.4, WALL + 0.02, 0.08);
+    box(g, 1.24, 0.012, 1.0, RED, 0, 0.006, 0.2).castShadow = false; // a red carpet up to the stand
   },
 
   // Big leafy monsteras in pots (user, 2026-10-11), a plant stand with little pots, and hanging plants.

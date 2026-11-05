@@ -425,6 +425,20 @@ export function buildItem(itemId) {
   return itemModels.get(itemId).clone();
 }
 
+/**
+ * An item's parts, unmerged, added to `g` at (x, y, z) and `s` times its size: for a model that's merged as a whole
+ * afterwards (the Collector's Gallery's cabinets, GDD #186), so its items cost no draw calls of their own.
+ */
+export function addItemParts(g, itemId, x, y, z, s) {
+  const part = new THREE.Group();
+  BUILDERS[ITEMS[itemId].model](part, ITEMS[itemId].color);
+  part.traverse((o) => { o.castShadow = false; });
+  part.position.set(x, y, z);
+  part.scale.setScalar(s);
+  g.add(part);
+  return part;
+}
+
 /** A cardboard delivery box with a label in the item's color. Origin at its bottom center. */
 export function buildBox(itemId, size) {
   const key = `${itemId}|${size}`;
