@@ -511,6 +511,12 @@ body.moving #toolbar { display: none; }
 .coach-msg.low { top: auto; bottom: calc(16px + env(safe-area-inset-bottom)); }
 .coach-msg[hidden], .coach-msg small[hidden] { display: none; }
 .coach-msg p { margin: 0; }
+.coach-msg.has-face { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 14px 10px 10px; }
+.coach-face { flex: none; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #fff6fb, #f3dcef);
+  border: 3px solid var(--pink); object-fit: cover; }
+.coach-face[hidden], .coach-name[hidden] { display: none; }
+.coach-say { flex: 1; min-width: 0; }
+.coach-name { display: block; font-size: 13px; color: var(--pink); margin-bottom: 2px; }
 .coach-msg small { display: block; margin-top: 6px; font-size: 13px; color: var(--pink); animation: bob 0.9s ease-in-out infinite; }
 .coach-msg.pop { animation: toast-in 0.35s ease-out; }
 .coach-tap { animation: coach-bounce 0.9s ease-in-out infinite; }

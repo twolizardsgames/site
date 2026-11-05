@@ -50,6 +50,7 @@ export const CHAPTERS = [
       ['maple', 'Then I got old, and the doors stayed shut for a long, long time.'],
       ['maple', "Here's the old brass key. It's yours now."],
       ['maple', 'Make it the best dollhouse shop around. I just know you can!'],
+      ['maple', "Now, let me show you how everything works. I'll be right here to help!"],
     ],
   },
   {
