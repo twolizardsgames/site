@@ -53,12 +53,23 @@ export function nextExpansion(state) {
   return EXPANSIONS.find((e) => !state.building.rooms.some((r) => r.type === e.type)) ?? null;
 }
 
+/**
+ * The first Window Display is a gift in a new game (day 3's Grow lesson, GDD #180): free while the tutorial
+ * isn't done, whichever step it's on (day 1 may close before the first sale, leaving it on 'register').
+ */
+export const displayIsGift = (state) => (state.tutorial ?? 'done') !== 'done' && !state.building.rooms.some((r) => r.type === 'display');
+
+/** The next expansion's price (0 for the gift). */
+export function expansionCost(state, next = nextExpansion(state)) {
+  return next?.type === 'display' && displayIsGift(state) ? 0 : next?.cost ?? 0;
+}
+
 /** Buy the next expansion: a new ground-floor room on the right end of the shop. */
 export function buildExpansion(state) {
-  const next = nextExpansion(state);
-  if (!next || state.coins < next.cost) return null;
+  const next = nextExpansion(state), cost = expansionCost(state, next);
+  if (!next || state.coins < cost) return null;
   const col = Math.max(...state.building.rooms.filter((r) => r.floor === 0).map((r) => r.col)) + 1;
-  addCoins(state, -next.cost);
+  addCoins(state, -cost);
   const room = addRoom(state, next.type, col, 0);
   events.emit('expanded', { room });
   return room;

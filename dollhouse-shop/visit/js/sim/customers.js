@@ -29,6 +29,7 @@ import { SPARKLE } from '../data/dollhouse.js';
 import { peekChance, peekWantChance, trafficBoost, windowX, dollhouseItems } from './collection.js';
 import { keeperGreeting } from './keeper.js';
 import { greeterOnDuty } from './helpers.js';
+import { guideDone } from './tutorial.js';
 
 /** Just inside the shop's open front, where customers step in and out (room-local). */
 export const ENTRY = { x: 0.4, z: 1.1 };
@@ -491,7 +492,7 @@ function putBack(state, itemId, from) {
 }
 
 /** Shoppers can give up on a line (GDD #138, #139), except on the visit page and during the first-day guide. */
-const mayLeaveSad = (state) => !state.visit && (state.tutorial ?? 'done') === 'done';
+const mayLeaveSad = (state) => !state.visit && guideDone(state);
 
 /** Count the time at the front of the line without being helped; true once it's past CUSTOMER.frontPatience (GDD #139). */
 function waitedAtFront(state, c, dt) {

@@ -494,12 +494,28 @@ body.moving #toolbar { display: none; }
 @keyframes story-fade { from { opacity: 0; } }
 
 /* First-day guide (ui/guide.js): a bouncing pink label with a big arrow underneath. */
-.bubble.guide { background: var(--pink); color: #fff; font-size: 15px; animation: bob 0.9s ease-in-out infinite; }
-.bubble.guide::after { bottom: -14px; margin-left: -12px; border-width: 14px 12px 0; border-top-color: var(--pink); }
 .guide-btn { position: absolute; transform: translate(-50%, -100%); pointer-events: none; animation: bob 0.9s ease-in-out infinite; }
 .guide-btn[hidden] { display: none; }
 .guide-btn span { position: relative; display: block; padding: 4px 8px; border-radius: 14px; background: var(--pink); color: #fff; font-weight: 800; font-size: 15px; white-space: nowrap; margin-bottom: 14px; }
 .guide-btn span::after { content: ''; position: absolute; left: 50%; bottom: -14px; margin-left: -12px; border: solid transparent; border-width: 14px 12px 0; border-top-color: var(--pink); }
+
+/* ---------- Spotlight for guided steps (ui/spotlight.js, GDD §12.3) ---------- */
+.coach { position: absolute; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
+.coach[hidden] { display: none; }
+.coach-hole { position: absolute; border-radius: 16px; transition: left 0.25s, top 0.25s, width 0.25s, height 0.25s; }
+.coach.dim .coach-hole { box-shadow: 0 0 0 200vmax rgba(36, 26, 46, 0.62); }
+.coach.dim.lit .coach-hole { outline: 3px solid var(--pink); outline-offset: 0; animation: coach-glow 1.1s ease-in-out infinite; }
+.coach-msg { position: absolute; left: 14px; right: 14px; top: calc(12px + env(safe-area-inset-top)); padding: 12px 16px; border-radius: 18px;
+  background: #fff; color: #4a3a5a; font-weight: 800; font-size: 16px; line-height: 1.3; text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); border: 3px solid var(--pink); }
+.coach-msg.low { top: auto; bottom: calc(16px + env(safe-area-inset-bottom)); }
+.coach-msg[hidden], .coach-msg small[hidden] { display: none; }
+.coach-msg p { margin: 0; }
+.coach-msg small { display: block; margin-top: 6px; font-size: 13px; color: var(--pink); animation: bob 0.9s ease-in-out infinite; }
+.coach-msg.pop { animation: toast-in 0.35s ease-out; }
+.coach-tap { animation: coach-bounce 0.9s ease-in-out infinite; }
+@keyframes coach-glow { 0%, 100% { outline-color: var(--pink); } 50% { outline-color: #fff; } }
+@keyframes coach-bounce { 0%, 100% { scale: 1; } 50% { scale: 1.07; } }
 
 @keyframes wiggle {
   0%, 100% { rotate: 0deg; }
@@ -688,7 +704,8 @@ body.moving #toolbar { display: none; }
 #share button:disabled { opacity: 0.5; }
 
 /* Settings (GDD #94): switches, volume sliders, and shortcuts to the shop name and shopkeeper. */
-.settings-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; overflow-y: auto; }
+/* Bottom padding: the list scrolls, which would clip the last buttons' drop shadow. */
+.settings-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; padding-bottom: 6px; overflow-y: auto; }
 .set-row { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
 .set-label { font-size: 16px; font-weight: 800; }
 .switch {
@@ -1215,6 +1232,9 @@ body.moving #toolbar { display: none; }
   animation: floater-in 0.5s 0.15s cubic-bezier(0.25, 1.6, 0.5, 1) both; }
 
 .pack-away { margin: 0; padding: 12px; border-radius: 14px; background: #fff4dc; font-weight: 800; font-size: 14px; text-align: center; }
+.pack-away small { display: block; margin-top: 6px; font-weight: 700; font-size: 13px; opacity: 0.8; }
+.pack-retry { margin-top: 10px; padding: 8px 18px; border: 0; border-radius: 999px; background: #fff; color: var(--pink-dark);
+  font: inherit; font-weight: 800; box-shadow: inset 0 0 0 2px var(--pink); }
 
 /* What's new in Decorate (GDD #122): a dot on the 🎨 button and the tabs, a "new" tag on the looks. */
 #toolbar button { position: relative; }
@@ -1241,6 +1261,23 @@ body.moving #toolbar { display: none; }
 #decorate .deco-head .help-link { margin-left: auto; margin-right: 8px; }
 
 #help .sheet-body { max-height: 80%; }
+
+/* Settings → 📜 Credits (GDD #183) */
+#credits .sheet-body { max-height: 80%; }
+.credits-list { overflow-y: auto; min-height: 0; margin: 8px -4px 0; padding: 0 4px 4px; }
+.credits-intro { margin: 0 0 4px; font-size: 14px; font-weight: 600; line-height: 1.45; }
+.credit summary { position: relative; padding-right: 32px; font-size: 14px; }
+.credit summary::after { position: absolute; top: 10px; right: 12px; float: none; }
+.credit-version { font-weight: 600; opacity: 0.6; }
+.credit-license { display: block; margin-top: 2px; font-size: 12px; font-weight: 700; opacity: 0.6; }
+.credit-body { padding: 0 12px 12px; font-size: 13px; font-weight: 600; line-height: 1.4; }
+.credit-body p { margin: 0 0 6px; }
+.credit-url { overflow-wrap: anywhere; user-select: text; -webkit-user-select: text; }
+.credit-text {
+  margin: 0; max-height: 240px; overflow: auto; padding: 8px; border-radius: 10px; background: var(--cream);
+  font: 500 11px/1.4 ui-monospace, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere;
+  user-select: text; -webkit-user-select: text;
+}
 .help-head { gap: 8px; min-height: 36px; }
 .help-head h2 { flex: 1; }
 .help-contents {
@@ -1334,3 +1371,15 @@ body.moving #toolbar { display: none; }
 .title-play:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 2px 0 var(--pink-dark); }
 #title.leaving .title-play { opacity: 0; transition: opacity 0.2s; }
 @keyframes title-pulse { 50% { transform: translateX(-50%) scale(1.06); } }
+
+/* Our own gold coin in place of the 🪙 emoji, which Apple draws silver (docs/ISSUES.md): text-sized, sitting on the baseline.
+   Use COIN / coinHtml / coinText from js/core/format.js. */
+.coin {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.17em;
+  font-style: normal;
+  flex: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='17.5' r='14' fill='%23c47a12'/%3E%3Ccircle cx='16' cy='15.5' r='14' fill='%23f6b52b'/%3E%3Ccircle cx='16' cy='15.5' r='10.3' fill='%23ffd75e' stroke='%23e39a1c' stroke-width='1.6'/%3E%3Cpath d='M16 9.5 17.53 13.4 21.71 13.65 18.47 16.3 19.53 20.35 16 18.1 12.47 20.35 13.53 16.3 10.29 13.65 14.47 13.4Z' fill='%23f0a21f'/%3E%3Cpath d='M7.5 12.5A9.5 9.5 0 0 1 14 6.6' fill='none' stroke='%23fff' stroke-opacity='.75' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}

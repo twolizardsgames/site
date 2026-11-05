@@ -66,11 +66,16 @@ export function ribbonsForFinds(state, discovered) {
  * Open decorating (GDD #86, #151), at the end of the story's chapter 2 (sim/story.js): Ribbons start, beginning with every
  * one-time Ribbon the Collection has earned so far. Returns true if it just opened.
  */
+/** Ribbons a new game has at least when decorating opens: enough for a 🎀 8 wall colour in the lesson (GDD #182). */
+export const LESSON_RIBBONS = 8;
+
 export function openDecor(state) {
   if (state.decorOpen) return false;
   state.decorOpen = true;
   const ribbons = ribbonsForCollection(state.collection);
   addRibbons(state, ribbons, 'open');
+  // A new game's Decorate lesson buys one look (GDD #182): Mrs. Maple's gift makes sure there's enough.
+  if ((state.tutorial ?? 'done') !== 'done') addRibbons(state, LESSON_RIBBONS - state.ribbons, 'gift');
   events.emit('decorOpened', { ribbons });
   return true;
 }

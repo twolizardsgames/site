@@ -6,7 +6,7 @@ import { createKeeper } from './keeper.js';
 import { dropBox } from './stock.js';
 import { emptyStats } from './day.js';
 
-export const STATE_VERSION = 39;
+export const STATE_VERSION = 40;
 
 /** The Settings menu's choices (GDD #94): sound effects and music, each on/off with a volume (0-1), vibration, and the
  * store apps' "earnings are ready" notification (GDD #128). */
@@ -82,6 +82,7 @@ export function createState(now = Date.now()) {
     awaySince: null,             // when the game went to the background (sim/offline.js, GDD #128); null while playing
     awayPaidTo: 0,               // the latest moment offline earnings have paid for, so time never pays twice
     lineHint: false,             // the one-time "build a register room" toast after someone gives up on a long line (GDD #133)
+    reviewAsked: [],             // store review tries used, by id (sim/review.js REVIEW_TRIES, GDD #181)
     lastSeen: now,
   };
   giveStarterBoxes(state);

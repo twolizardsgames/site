@@ -29,17 +29,18 @@ export function givePack(state, id) {
 }
 
 /**
- * The everything bundle's offer on a pack card (GDD #175): shown while the bundle isn't yours and everything you
- * don't have yet costs more than the bundle, bought one by one. `amount(id)` is a price as a number (the store's, in
- * the player's currency). Returns { price, worth, all } (`all`: nothing bought yet) or null.
+ * The everything bundle's offer on a pack card (GDD #175, #184): shown whenever the bundle isn't yours (it has every
+ * future pack too, so it's worth offering even when what's left costs less). `amount(id)` is a price as a number (the
+ * store's, in the player's currency). Returns { price, worth, all, saving } (`all`: nothing bought yet; `saving`: what
+ * you don't have yet costs more than the bundle, bought one by one) or null (also when the bundle's price is unknown).
  */
 export function bundleOffer(state, amount) {
   if (!PACKS[BUNDLE] || ownsPack(state, BUNDLE)) return null;
   const left = PACK_IDS.filter((id) => id !== BUNDLE && !ownsPack(state, id));
   const price = amount(BUNDLE);
   const worth = Math.round(left.reduce((sum, id) => sum + amount(id), 0) * 100) / 100;
-  if (!(worth > price)) return null; // also when a price is unknown (NaN)
-  return { price, worth, all: left.length === PACK_IDS.length - 1 };
+  if (Number.isNaN(price)) return null;
+  return { price, worth, all: left.length === PACK_IDS.length - 1, saving: worth > price }; // false when a price is unknown (NaN)
 }
 
 /** Take a pack away again (the debug panel only; a store purchase is never undone). */
