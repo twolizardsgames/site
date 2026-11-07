@@ -63,7 +63,7 @@ export function removePack(state, id) {
  * not if the pack is already yours. The only purchase card that ever opens on its own.
  */
 export const welcomeOfferDue = (state, shown) => !!shown && !!state.decorOpen && !state.welcomeOffered
-  && state.day?.phase === 'morning' && !state.visit && !ownsPack(state, 'welcome');
+  && state.day?.phase === 'morning' && (!state.visit || state.visit.step === 'leaving') && !ownsPack(state, 'welcome');
 
 /** The Welcome pack's card has shown; it never opens on its own again. */
 export function markWelcomeOffered(state) { state.welcomeOffered = true; }

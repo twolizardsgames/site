@@ -52,6 +52,9 @@ const BROWSE_DZ = 0.62;
 const GIVE_UP = new Set(['toWindow', 'peeking', 'arriving', 'entering', 'toShelf', 'browsing', 'toRoom', 'toAdmire', 'admiring']);
 const MAX_WISHES = 12;
 
+/** On the visit page (`state.visit === true`) customers only look; a story visit (`state.visit` an object) is not that. */
+const lookOnly = (state) => state.visit === true;
+
 const pick = (rand, list) => list[Math.floor(rand() * list.length)];
 const between = (rand, [lo, hi]) => lo + rand() * (hi - lo);
 
@@ -179,7 +182,7 @@ function walk(c, nav, x, z, face = null) {
 }
 
 function addWish(state, c, itemId) {
-  if (state.visit) return; // just looking around someone else's shop
+  if (lookOnly(state)) return; // just looking around someone else's shop
   state.wishes.push({ itemId, day: state.day.number });
   if (state.wishes.length > MAX_WISHES) state.wishes.shift();
   recordWish(state, itemId);
@@ -249,7 +252,7 @@ function finishBrowsing(state, c, navs, rand) {
   c.target = null;
   const shelf = t && findFixture(state, t.fixtureId)?.fixture;
   const took = t && shelf && t.slot != null ? shelf.slots[t.slot] : null; // the color they found
-  if (state.visit) {
+  if (lookOnly(state)) {
     c.wants.shift(); // had a good look; on to the next thing (and nothing leaves the shelf)
   } else if (took && baseOf(took) === t.itemId) {
     shelf.slots[t.slot] = null;
@@ -340,6 +343,20 @@ function goToQueueSpot(state, c, i, navs) {
   else if (routeTo(state, navs, c, { roomId: regId, x: s.x, z: s.z })) c.arriveFacing = queueFace(i);
 }
 
+/**
+ * Out the front of the room they're in, onto the sidewalk, and off the end of the road on `side` (-1 left, 1 right),
+ * like every customer going home (from upstairs: down the stairs first, then out under that room). Story visitors
+ * leave this way too. False if there's no way out.
+ */
+export function walkOut(state, navs, agent, side) {
+  const room = roomById(state, agent.arriveRoom?.roomId ?? agent.roomId);
+  if (!room) return false;
+  const doorX = doorOf(room).x + roomOffset(state, room);
+  if (!routeTo(state, navs, agent, { street: true, x: doorX, z: STREET.outLane })) return false;
+  routeEndPath(agent).push({ x: roadEnd(state, side), z: STREET.outLane });
+  return true;
+}
+
 function leave(state, c, navs) {
   const reg = registerOf(state, regIdOf(state, c));
   const coming = reg?.coming ?? [];
@@ -355,12 +372,7 @@ function leave(state, c, navs) {
     });
   }
   // Out the front of their room, onto the sidewalk, and off the far end of the road from where they came.
-  const far = roadEnd(state, -c.side);
-  // (From upstairs: down the stairs first, then out under the room they were in.)
-  const room = roomById(state, c.arriveRoom?.roomId ?? c.roomId);
-  const doorX = doorOf(room).x + roomOffset(state, room);
-  if (routeTo(state, navs, c, { street: true, x: doorX, z: STREET.outLane })) routeEndPath(c).push({ x: far, z: STREET.outLane });
-  else { c.path = [{ x: far, z: STREET.outLane }]; c.legs = []; }
+  if (!walkOut(state, navs, c, -c.side)) { c.path = [{ x: roadEnd(state, -c.side), z: STREET.outLane }]; c.legs = []; }
   c.arriveFacing = null;
   c.state = 'leaving';
 }
@@ -492,7 +504,7 @@ function putBack(state, itemId, from) {
 }
 
 /** Shoppers can give up on a line (GDD #138, #139), except on the visit page and during the first-day guide. */
-const mayLeaveSad = (state) => !state.visit && guideDone(state);
+const mayLeaveSad = (state) => !lookOnly(state) && guideDone(state);
 
 /** Count the time at the front of the line without being helped; true once it's past CUSTOMER.frontPatience (GDD #139). */
 function waitedAtFront(state, c, dt) {
