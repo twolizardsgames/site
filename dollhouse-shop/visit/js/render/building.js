@@ -15,6 +15,7 @@ import { canvasTexture, drawContext } from './canvasTexture.js';
 export const ROOM = ROOM_SIZE;
 const { W, H, D, T } = ROOM;
 const ROOF_H = 2.1;
+const SIGN_PINK = '#e0679a'; // the sign's letters and frame
 
 /** Positions for a set of rooms. The building is centered on x = 0; the ground floor sits on y = 0. */
 export function layoutRooms(rooms) {
@@ -101,7 +102,7 @@ function addRoofs(group, rooms, layout, shopName) {
   const tallest = runs.reduce((a, b) => (b.floor > a.floor || (b.floor === a.floor && b.to - b.from > a.to - a.from) ? b : a));
   const shop = rooms.find((r) => r.type === 'shop') ?? rooms[0];
   let signMesh = null;
-  layout.roofs = []; // { left, right, y } per roof: where the outside scenes put snow and lights (render/environment.js)
+  layout.roofs = []; // { left, right, y, h, d, sign? } per roof: where the outside scenes put snow and lights (render/environment.js)
   layout.shopX = layout.roomX(shop.col); // where the outside scenes frame the shop's front (the Fairy pack's flower arch)
   for (const run of runs) {
     const y = layout.roomY(run.floor) + H + T;
@@ -111,11 +112,14 @@ function addRoofs(group, rooms, layout, shopName) {
     const roof = prism(group, right - left, ROOF_H, D + 0.6, P.roof);
     roof.position.set((left + right) / 2, y, 0);
     roof.castShadow = false;
-    layout.roofs.push({ left, right, y, h: ROOF_H, d: D + 0.6 });
+    const entry = { left, right, y, h: ROOF_H, d: D + 0.6 };
+    layout.roofs.push(entry);
     if (run === tallest) box(group, 0.45, 1.2, 0.45, P.brick, right - 1.0, y + 1.0, -0.3);
     if (shop.col >= run.from && shop.col <= run.to) {
       const sx = Math.min(Math.max(layout.roomX(shop.col), left + 1.6), right - 1.6), signZ = (D + 0.6) / 2;
-      box(group, 2.12, 0.9, 0.06, P.cream, sx, y + 0.62, signZ + 0.01);
+      // A pink frame round the cream sign, so it stands out on a pale or snowy roof.
+      box(group, 2.16, 0.94, 0.06, SIGN_PINK, sx, y + 0.62, signZ + 0.01);
+      entry.sign = { left: sx - 1.08, right: sx + 1.08, bottom: y + 0.15, top: y + 1.09 }; // outside scenes keep their lights off it
       const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.78), new THREE.MeshBasicMaterial({ map: signTexture(signLines(shopName)) }));
       sign.position.set(sx, y + 0.62, signZ + 0.05);
       sign.userData = { sign: true };
@@ -227,7 +231,7 @@ function signTexture(lines, height = 400) {
   const g = drawContext(c);
   g.fillStyle = P.cream;
   g.fillRect(0, 0, c.width, c.height);
-  g.fillStyle = '#e0679a';
+  g.fillStyle = SIGN_PINK;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   const lineH = c.height / lines.length;

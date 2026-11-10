@@ -353,7 +353,7 @@ const PACK_TILES = {
   seacreatures(g, s) {
     crab(g, s * 0.28, s * 0.32, s * 0.19);
     fish(g, s * 0.74, s * 0.24, s * 0.14, '#ff9a3c', '#ffd23f');
-    octopus(g, s * 0.74, s * 0.72, s * 0.19);
+    seahorse(g, s * 0.74, s * 0.66, s * 0.2);
     g.fillStyle = '#ffb86b'; star(g, s * 0.24, s * 0.8, s * 0.12);
     g.fillStyle = 'rgba(255,255,255,0.8)';
     for (const [x, y, r] of [[0.5, 0.12, 0.025], [0.55, 0.05, 0.016], [0.08, 0.55, 0.02], [0.48, 0.58, 0.018]]) circle(g, x * s, y * s, r * s);
@@ -565,25 +565,49 @@ function fish(g, x, y, r, body, stripe) {
   g.fillStyle = '#2a1f2a'; circle(g, x - r * 0.5, y - r * 0.13, r * 0.12);
 }
 
-/** A purple octopus: a round head, a smile and wavy legs. */
-function octopus(g, x, y, r) {
-  g.strokeStyle = '#b48cff'; g.lineWidth = r * 0.2; g.lineCap = 'round';
-  for (let i = 0; i < 5; i++) {
-    const lx = x + (i - 2) * r * 0.32;
-    g.beginPath(); g.moveTo(lx, y + r * 0.2);
-    g.quadraticCurveTo(lx + (i % 2 ? r * 0.25 : -r * 0.25), y + r * 0.6, lx + (i - 2) * r * 0.12, y + r * 0.95);
-    g.stroke();
+/** A purple seahorse facing left: a long snout, a crest, a round belly with ridges, a fin on its back and a curled tail. */
+function seahorse(g, x, y, r) {
+  const body = '#b48cff', light = '#e2d2ff';
+  const P = (px, py) => [x + px * r, y + py * r];
+  // The tail: a taper of dots down from the body, then curling forward and up
+  const tail = [];
+  for (let t = 0; t <= 1; t += 0.05) tail.push([0.04 + t * 0.04, 0.35 + t * 0.47]);
+  for (let a = 0; a <= Math.PI * 1.75; a += 0.12) {
+    const rr = 0.2 * (1 - a / (Math.PI * 2.6));
+    tail.push([-0.12 + Math.cos(a) * rr, 0.82 + Math.sin(a) * rr]);
   }
-  g.fillStyle = '#b48cff';
-  g.beginPath(); g.ellipse(x, y - r * 0.15, r * 0.75, r * 0.7, 0, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#ffffff';
-  for (const side of [-1, 1]) circle(g, x + side * r * 0.28, y - r * 0.2, r * 0.17);
-  g.fillStyle = '#2a1f2a';
-  for (const side of [-1, 1]) circle(g, x + side * r * 0.28, y - r * 0.17, r * 0.09);
-  g.fillStyle = '#ff9fb0';
-  for (const side of [-1, 1]) circle(g, x + side * r * 0.5, y + r * 0.05, r * 0.1);
-  g.strokeStyle = '#2a1f2a'; g.lineWidth = r * 0.06;
-  g.beginPath(); g.arc(x, y + r * 0.02, r * 0.14, 0.3, Math.PI - 0.3); g.stroke();
+  g.fillStyle = body;
+  tail.forEach(([px, py], i) => { const [cx, cy] = P(px, py); circle(g, cx, cy, r * (0.15 - 0.1 * i / tail.length)); });
+  // The fin on its back, a little fan with lines
+  g.fillStyle = light;
+  g.beginPath(); g.moveTo(...P(0.3, -0.3)); g.quadraticCurveTo(...P(0.62, -0.05), ...P(0.3, 0.22)); g.closePath(); g.fill();
+  g.strokeStyle = body; g.lineWidth = r * 0.035; g.lineCap = 'round';
+  for (const k of [-0.15, 0, 0.12]) { g.beginPath(); g.moveTo(...P(0.3, k * 0.4 - 0.04)); g.lineTo(...P(0.48, k * 1.4 - 0.04)); g.stroke(); }
+  // The body: a round belly at the front, a curved back
+  g.fillStyle = body;
+  g.beginPath(); g.moveTo(...P(-0.12, -0.58));
+  g.quadraticCurveTo(...P(-0.55, -0.1), ...P(-0.08, 0.45));
+  g.lineTo(...P(0.16, 0.42));
+  g.quadraticCurveTo(...P(0.45, 0), ...P(0.26, -0.62));
+  g.closePath(); g.fill();
+  // The head, the snout and the crest
+  circle(g, ...P(0.06, -0.7), r * 0.26);
+  g.strokeStyle = body; g.lineWidth = r * 0.15;
+  g.beginPath(); g.moveTo(...P(-0.08, -0.68)); g.lineTo(...P(-0.52, -0.58)); g.stroke();
+  circle(g, ...P(-0.54, -0.58), r * 0.09);
+  for (const [cx, cy] of [[-0.02, -0.93], [0.12, -0.96], [0.25, -0.88]]) {
+    g.beginPath(); g.moveTo(...P(cx - 0.07, cy + 0.08)); g.lineTo(...P(cx, cy - 0.06)); g.lineTo(...P(cx + 0.07, cy + 0.08)); g.fill();
+  }
+  // Ridges across the belly
+  g.strokeStyle = light; g.lineWidth = r * 0.05;
+  for (const k of [-0.3, -0.12, 0.06, 0.24]) {
+    const w = 0.24 - Math.abs(k + 0.05) * 0.25;
+    g.beginPath(); g.moveTo(...P(-0.22 - w * 0.3, k)); g.quadraticCurveTo(...P(-0.08, k + 0.07), ...P(0.12, k)); g.stroke();
+  }
+  // The eye and a pink cheek
+  g.fillStyle = '#ffffff'; circle(g, ...P(0.06, -0.74), r * 0.12);
+  g.fillStyle = '#2a1f2a'; circle(g, ...P(0.03, -0.73), r * 0.065);
+  g.fillStyle = '#ff9fb0'; circle(g, ...P(0.14, -0.58), r * 0.07);
 }
 
 /** A row of curling waves across the tile (seamless left to right), foam on top. */

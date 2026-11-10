@@ -23,15 +23,20 @@ html, body {
   -webkit-touch-callout: none;
 }
 
-/* Portrait frame: fills a phone; shows a phone-shaped viewport on desktop. */
+/* Portrait frame: fills a phone (also in a browser, whose toolbars make the screen squatter: an iPhone 13 in Safari
+   is 390 × 664) and a tablet held upright; shows a portrait column on desktop. */
 #app {
   position: fixed;
   inset: 0;
   margin: auto;
-  width: min(100vw, calc(100dvh * 0.5));
+  width: min(100vw, calc(100dvh * 0.75));
   height: 100dvh;
   overflow: hidden;
 }
+
+/* Wide screens (an iPad held upright): the counters, the toolbar and the panels stay phone-sized and centered, and the
+   shop fills the rest (2026-11-09; they stretched across the whole iPad). Phones are narrower, so nothing changes there. */
+#hud, #toolbar, .sheet-body, #styler, #creator { max-width: 480px; margin-left: auto; margin-right: auto; }
 
 #game {
   display: block;

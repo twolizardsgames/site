@@ -97,12 +97,15 @@ function tree(group, x, z, s, snowy) {
 function christmas(group, layout, trees, front, half) {
   const bulbs = []; // [x, y, z] for every light: roofs, then trees
 
-  for (const { left, right, y, h, d } of layout.roofs) {
+  for (const { left, right, y, h, d, sign } of layout.roofs) {
     const w = right - left, cx = (left + right) / 2, fz = d / 2;
+    // No bulbs on or poking through the shop's sign (they used to sit across its letters).
+    const offSign = ([x, by]) => !sign || x < sign.left - 0.06 || x > sign.right + 0.06 || by < sign.bottom - 0.06 || by > sign.top + 0.06;
     // Snow lying on both slopes: a thick white slab along each, a little proud of the roof.
     const ang = Math.atan2(h, w / 2), len = Math.hypot(w / 2, h) + 0.08, th = 0.09;
     for (const side of [-1, 1]) {
-      const slab = box(group, len, th, d + 0.1, SNOW, cx + side * (w / 4 + Math.sin(ang) * th / 2), y + h / 2 + Math.cos(ang) * th / 2, 0);
+      // d + 0.04: its front stays behind the sign's face (at d + 0.1 the two were in one plane and flickered).
+      const slab = box(group, len, th, d + 0.04, SNOW, cx + side * (w / 4 + Math.sin(ang) * th / 2), y + h / 2 + Math.cos(ang) * th / 2, 0);
       slab.rotation.z = -side * ang;
       slab.castShadow = false;
     }
@@ -111,7 +114,7 @@ function christmas(group, layout, trees, front, half) {
     const slope = Math.hypot(w / 2, h), n = Math.max(4, Math.round(slope / 0.32));
     for (let i = 0; i <= n; i++) {
       const t = i / n;
-      bulbs.push([left + (w / 2) * t, y + h * t - 0.04, fz + 0.09], [right - (w / 2) * t, y + h * t - 0.04, fz + 0.09]);
+      for (const p of [[left + (w / 2) * t, y + h * t - 0.04, fz + 0.09], [right - (w / 2) * t, y + h * t - 0.04, fz + 0.09]]) if (offSign(p)) bulbs.push(p);
     }
     for (let x = left + 0.3; x < right - 0.15; x += 0.32) bulbs.push([x, y - 0.06, fz + 0.04]);
     wreath(group, cx, y + h * 0.66, fz + 0.03);
