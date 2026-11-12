@@ -8,6 +8,9 @@ The Two Lizards Games studio site: plain HTML and CSS, no build step, meant for 
 - `dollhouse-shop/visit/`: the game's share-link visit page (`https://twolizardsgames.com/dollhouse-shop/visit/#v1.…`).
   **Generated, don't edit by hand:** the game repo's `npm run release` copies it from each release
   (`scripts/visit-export.js` in esalavat/shop-game) and commits and pushes it here
+- `dollhouse-shop/press/`: the press kit (fact sheet, description, gameplay clip, screenshots, Christmas images, icon and
+  banner, a zip of everything in `media/`; thumbnails in `thumbs/` are 520 px JPGs made with `sips`). The images come from the
+  game repo's `store/` folder; the clip was recorded from the game's canvas. Update the store links here once the apps are live
 - `privacy/`: studio privacy page: links to each game's policy, plus this website and email
 - `dollhouse-shop/privacy/`: My Dream Dollhouse Shop's privacy policy (the stores link to `https://twolizardsgames.com/dollhouse-shop/privacy/`)
 - `support/`: support email and FAQs (the stores link to `https://twolizardsgames.com/support/`)

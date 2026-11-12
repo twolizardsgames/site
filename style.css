@@ -115,3 +115,17 @@ summary::marker { color: var(--pink); }
 
 .toc { font-size: 15px; }
 .toc ol { padding-left: 20px; }
+
+/* Press kit */
+.facts { width: 100%; border-collapse: collapse; font-size: 16px; }
+.facts th, .facts td { text-align: left; vertical-align: top; padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); }
+.facts th { width: 34%; color: var(--muted); font-weight: 600; }
+.gallery { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 600px) { .gallery { grid-template-columns: repeat(4, 1fr); } }
+.gallery.wide { grid-template-columns: 1fr; }
+@media (min-width: 600px) { .gallery.wide { grid-template-columns: 1fr 1fr; } }
+.gallery li { margin: 0; }
+.gallery a { display: block; text-decoration: none; font-size: 13px; color: var(--muted); }
+.gallery img { display: block; width: 100%; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 6px; }
+.clip { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--radius); box-shadow: var(--shadow); background: var(--card); }
+.copy { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: 0 0 14px; }
