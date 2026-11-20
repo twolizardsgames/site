@@ -14,14 +14,24 @@
 
 import * as THREE from 'three';
 import { box, cyl, ball, mesh, mergeStatic, mergeColors } from './models/prims.js';
-import { PALETTE as P } from './toon.js';
+import { PALETTE as P, gradientMap } from './toon.js';
 import { ROOM } from './building.js';
 import { canvasTexture, drawContext } from './canvasTexture.js';
 import { parrot, toucan, PARROTS, seagull } from './models/critters.js';
 import { deckChair, umbrella, sandcastle, bucket, surfboard, beachBall, starfish, shells, SAND, BEACH_STRIPES } from './models/beach.js';
 
 const GROUND_Y = -0.4;
-const SNOW = '#f7fbff', SNOW_SHADE = '#e3eef8', XRED = '#d8283f', XGREEN = '#2f8a4e', XGOLD = '#ffcf4a';
+// Snow has its own material: the daylight is warm (lighting.js), so a plain white came out cream. A cooler colour and a
+// faint blue glow cancel that, so the snow reads white by day; the glow fades at dusk. One material, so the merged
+// street still draws all the snow at once.
+const SNOW_GLOW = '#2050a0'; // measured: lit snow comes out about #f8fdff (it was #fffaef)
+const snowMats = new Map();
+/** The snow material in `color` (the snow itself, or the snowy sidewalk), made once. */
+function snow(color = '#eaf4ff') {
+  if (!snowMats.has(color)) snowMats.set(color, new THREE.MeshToonMaterial({ color, gradientMap, emissive: SNOW_GLOW }));
+  return snowMats.get(color);
+}
+const XRED = '#d8283f', XGREEN = '#2f8a4e', XGOLD = '#ffcf4a';
 const FLAKE = 0.16; // a snowflake's size in world units
 const FLAKES_PER_AREA = 2.4, FLAKES_MAX = 2500; // per square unit of the house's front, and at most
 const BULBS = ['#ff5a6e', '#ffd34d', '#5ad1ff', '#7ee07a', '#ff9be0'];
@@ -61,10 +71,10 @@ export function createEnvironment(layout, lighting, outside = null) {
   const half = layout.width / 2, g = groundSize(layout);
   const snowy = outside === 'christmas';
 
-  ground(group, g, snowy ? SNOW : P.grass);
+  ground(group, g, snowy ? snow() : P.grass);
   // The sidewalk sits a little higher than the road and they don't overlap, so their edge never
   // flickers (z-fighting, worst on phones).
-  box(group, g.w, 0.02, 1.8, snowy ? '#e6edf5' : P.sidewalk, 0, GROUND_Y + 0.01, front + 1.05);
+  box(group, g.w, 0.02, 1.8, snowy ? snow('#e6edf5') : P.sidewalk, 0, GROUND_Y + 0.01, front + 1.05);
   box(group, g.w, 0.02, 2.55, snowy ? '#b9b3c4' : P.road, 0, GROUND_Y - 0.005, front + 3.225);
   for (let x = -g.dash; x < g.dash; x += 1.6) box(group, 0.7, 0.01, 0.12, P.cream, x, GROUND_Y + 0.03, front + 3.2);
 
@@ -72,13 +82,24 @@ export function createEnvironment(layout, lighting, outside = null) {
   for (const [x, z, s] of trees) tree(group, x, z, s, snowy);
   for (const x of [-half - 0.6, half + 0.6]) {
     ball(group, 0.35, P.leaf, x, GROUND_Y + 0.15, front - 0.2, 0);
-    if (snowy) ball(group, 0.3, SNOW, x, GROUND_Y + 0.27, front - 0.22, 0).scale.y = 0.55;
+    if (snowy) ball(group, 0.3, snow(), x, GROUND_Y + 0.27, front - 0.22, 0).scale.y = 0.55;
     else ball(group, 0.12, P.pink, x + 0.1, GROUND_Y + 0.4, front, 0);
   }
   lighting.addStreetLamp(group, half + 0.9, GROUND_Y, front + 0.4);
 
   let update = () => {};
-  if (snowy) update = christmas(group, layout, trees, front, half);
+  if (snowy) {
+    const scene = christmas(group, layout, trees, front, half);
+    // The glow is for the warm daylight only: at dusk it would turn the snow bright blue, so it fades with the light.
+    let dusk = lighting.twilight;
+    const fade = () => { for (const m of snowMats.values()) m.emissiveIntensity = 1 - 0.8 * dusk; };
+    fade();
+    update = (dt) => {
+      scene(dt);
+      dusk += (lighting.twilight - dusk) * (1 - Math.exp(-dt * 3)); // at the lighting's own pace
+      fade();
+    };
+  }
   mergeStatic(mergeColors(group)); // the street, trees and any outside scene: a few draw calls in all
   return { group, update };
 }
@@ -88,8 +109,8 @@ function tree(group, x, z, s, snowy) {
   ball(group, 0.6 * s, P.leaf, x, GROUND_Y + 1.2 * s, z, 0);
   ball(group, 0.45 * s, P.leafLight, x + 0.25 * s, GROUND_Y + 1.55 * s, z + 0.1, 0);
   if (snowy) { // a cap of snow on each crown
-    ball(group, 0.5 * s, SNOW, x - 0.04 * s, GROUND_Y + 1.42 * s, z - 0.02, 0).scale.y = 0.5;
-    ball(group, 0.38 * s, SNOW, x + 0.25 * s, GROUND_Y + 1.74 * s, z + 0.06, 0).scale.y = 0.5;
+    ball(group, 0.5 * s, snow(), x - 0.04 * s, GROUND_Y + 1.42 * s, z - 0.02, 0).scale.y = 0.5;
+    ball(group, 0.38 * s, snow(), x + 0.25 * s, GROUND_Y + 1.74 * s, z + 0.06, 0).scale.y = 0.5;
   }
 }
 
@@ -105,11 +126,11 @@ function christmas(group, layout, trees, front, half) {
     const ang = Math.atan2(h, w / 2), len = Math.hypot(w / 2, h) + 0.08, th = 0.09;
     for (const side of [-1, 1]) {
       // d + 0.04: its front stays behind the sign's face (at d + 0.1 the two were in one plane and flickered).
-      const slab = box(group, len, th, d + 0.04, SNOW, cx + side * (w / 4 + Math.sin(ang) * th / 2), y + h / 2 + Math.cos(ang) * th / 2, 0);
+      const slab = box(group, len, th, d + 0.04, snow(), cx + side * (w / 4 + Math.sin(ang) * th / 2), y + h / 2 + Math.cos(ang) * th / 2, 0);
       slab.rotation.z = -side * ang;
       slab.castShadow = false;
     }
-    box(group, w + 0.04, 0.07, d + 0.04, SNOW, cx, y + 0.02, 0).castShadow = false; // a line of snow along the eaves
+    box(group, w + 0.04, 0.07, d + 0.04, snow(), cx, y + 0.02, 0).castShadow = false; // a line of snow along the eaves
     // Lights along both front slopes and the eaves.
     const slope = Math.hypot(w / 2, h), n = Math.max(4, Math.round(slope / 0.32));
     for (let i = 0; i <= n; i++) {
@@ -168,9 +189,9 @@ function wreath(group, x, y, z) {
 
 function snowman(group, x, z) {
   const y = GROUND_Y;
-  ball(group, 0.32, SNOW, x, y + 0.28, z, 1);
-  ball(group, 0.23, SNOW, x, y + 0.72, z, 1);
-  ball(group, 0.17, SNOW, x, y + 1.05, z, 1);
+  ball(group, 0.32, snow(), x, y + 0.28, z, 1);
+  ball(group, 0.23, snow(), x, y + 0.72, z, 1);
+  ball(group, 0.17, snow(), x, y + 1.05, z, 1);
   mesh(group, new THREE.ConeGeometry(0.035, 0.16, 6), '#ff8a3c', x, y + 1.05, z + 0.22).rotation.x = Math.PI / 2;
   for (const dx of [-0.06, 0.06]) ball(group, 0.022, P.ink, x + dx, y + 1.1, z + 0.15, 0).castShadow = false;
   for (const dy of [0.66, 0.78]) ball(group, 0.026, P.ink, x, y + dy, z + 0.22, 0).castShadow = false;
